@@ -12,7 +12,7 @@ import {
 } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { isItalianHoliday } from '../utils/holidays';
-import { Edit2, MessageSquare, Zap, PartyPopper } from 'lucide-react';
+import { Edit2, MessageSquare, Zap } from 'lucide-react';
 
 export default function CalendarMonth({
   currentDate,
@@ -38,22 +38,6 @@ export default function CalendarMonth({
   for (let i = 0; i < allDays.length; i += 7) {
     weeks.push(allDays.slice(i, i + 7));
   }
-
-  // Extract all holidays falling in this active month
-  const currentMonthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-  const monthHolidays = [];
-  currentMonthDays.forEach(d => {
-    const dStr = format(d, 'yyyy-MM-dd');
-    const hName = isItalianHoliday(dStr);
-    if (hName) {
-      monthHolidays.push({
-        date: d,
-        dateStr: dStr,
-        dayNumber: format(d, 'd'),
-        name: hName
-      });
-    }
-  });
 
   const shiftMap = new Map(shifts.map(s => [s.code, s]));
   const shiftByIdMap = new Map(shifts.map(s => [s.id, s]));
@@ -158,9 +142,10 @@ export default function CalendarMonth({
                           : ''
                       }`}
                     >
-                      {/* Top Header: Giorno + Festività (antispaginamento) */}
+                      {/* Top Header: Giorno (in rosso se festività) */}
                       <div className="flex items-center justify-between gap-0.5 min-w-0 overflow-hidden leading-none">
                         <span 
+                          title={holidayName ? `Festività: ${holidayName}` : undefined}
                           className={`inline-flex items-center justify-center font-bold text-xs sm:text-sm rounded transition-transform group-hover:scale-105 shrink-0 ${
                             isDayToday
                               ? 'bg-yellow-400 text-slate-950 px-1 py-0.5 shadow font-extrabold rounded-md'
@@ -173,19 +158,6 @@ export default function CalendarMonth({
                         >
                           {format(day, 'd')}
                         </span>
-
-                        {/* Indicatore Festività: Pallino compatto su mobile, etichetta tronca su desktop */}
-                        {holidayName && (
-                          <div className="flex items-center shrink-0 min-w-0" title={`Festività: ${holidayName}`}>
-                            {/* Mobile dot */}
-                            <span className="sm:hidden w-2 h-2 rounded-full bg-rose-500 shadow-xs shadow-rose-500/80 shrink-0" />
-                            
-                            {/* Desktop pill */}
-                            <span className="hidden sm:inline-block text-[9px] font-bold text-rose-300 bg-rose-950/80 border border-rose-800/80 px-1 py-0.5 rounded truncate max-w-[55px] md:max-w-[70px]">
-                              {holidayName}
-                            </span>
-                          </div>
-                        )}
 
                         {/* Edit details hover button (desktop only) */}
                         <button
@@ -273,31 +245,6 @@ export default function CalendarMonth({
         </div>
 
       </div>
-
-      {/* Barra Informativa Festività del Mese (Sempre leggibile e cliccabile senza spaginare la griglia) */}
-      {monthHolidays.length > 0 && (
-        <div className="mt-2.5 sm:mt-3 px-3 py-2 bg-slate-900/70 border border-slate-800/80 rounded-xl sm:rounded-2xl flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-300 shadow-sm backdrop-blur-sm">
-          <span className="text-rose-400 font-bold flex items-center gap-1.5 shrink-0">
-            <PartyPopper className="w-3.5 h-3.5" />
-            <span>Festività di questo mese:</span>
-          </span>
-          <div className="flex flex-wrap items-center gap-2">
-            {monthHolidays.map((h, i) => (
-              <button
-                key={i}
-                onClick={() => onDayClick(h.date, h.dateStr)}
-                className="px-2 py-0.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:text-white font-medium flex items-center gap-1.5 transition-all active:scale-95"
-                title={`Tocca per aprire ${h.name}`}
-              >
-                <span className="font-extrabold text-white bg-rose-500/40 px-1 rounded text-[10px]">
-                  {h.dayNumber}
-                </span>
-                <span>{h.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
