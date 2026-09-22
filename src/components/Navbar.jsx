@@ -9,7 +9,8 @@ import {
   Sun, 
   Moon,
   Sparkles,
-  Share2
+  Share2,
+  Plus
 } from 'lucide-react';
 
 export default function Navbar({
@@ -23,7 +24,8 @@ export default function Navbar({
   onOpenExport,
   theme,
   onToggleTheme,
-  onOpenWeekPattern
+  onOpenWeekPattern,
+  onOpenShiftPicker
 }) {
   const monthNames = [
     'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
@@ -120,6 +122,19 @@ export default function Navbar({
               <span className="hidden xs:inline">Report</span>
             </button>
           </div>
+
+          {/* Quick Shift Assignment Button */}
+          {activeTab === 'calendar' && (
+            <button
+              onClick={onOpenShiftPicker}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-yellow-400/20 active:scale-95 transition-all"
+              title="Scegli un turno da assegnare con un tocco"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span className="hidden sm:inline">Assegna Turno</span>
+              <span className="sm:hidden">Turno</span>
+            </button>
+          )}
 
           {/* Quick Pattern Generator Button */}
           <button

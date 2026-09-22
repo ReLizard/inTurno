@@ -11,13 +11,15 @@ import {
 import confetti from 'canvas-confetti';
 
 import Navbar from './components/Navbar';
-import ShiftPalette from './components/ShiftPalette';
 import CalendarMonth from './components/CalendarMonth';
 import DayEditModal from './components/DayEditModal';
 import StatsView from './components/StatsView';
 import SettingsModal from './components/SettingsModal';
 import WeekPatternModal from './components/WeekPatternModal';
 import IcsExportModal from './components/IcsExportModal';
+import ShiftPickerModal from './components/ShiftPickerModal';
+import ActiveShiftBanner from './components/ActiveShiftBanner';
+import { Plus } from 'lucide-react';
 
 import { 
   loadStoredData, 
@@ -38,14 +40,15 @@ export default function App() {
 
   // Active interaction states
   const [activeTab, setActiveTab] = useState('calendar'); // 'calendar' | 'stats'
-  const [selectedShiftId, setSelectedShiftId] = useState('m1');
-  const [brushMode, setBrushMode] = useState(true);
+  const [selectedShiftId, setSelectedShiftId] = useState(null);
+  const [brushMode, setBrushMode] = useState(false);
 
   // Modal states
   const [editingDayDate, setEditingDayDate] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isWeekPatternOpen, setIsWeekPatternOpen] = useState(false);
+  const [isShiftPickerOpen, setIsShiftPickerOpen] = useState(false);
 
   // Save changes to localStorage
   useEffect(() => {
@@ -137,8 +140,22 @@ export default function App() {
     setSchedule(newSchedule);
   };
 
+  const handleSelectShiftToAssign = (shiftId) => {
+    setSelectedShiftId(shiftId);
+    setBrushMode(true);
+  };
+
+  const handleStopAssigning = () => {
+    setBrushMode(false);
+    setSelectedShiftId(null);
+  };
+
   // Quick Action: Fill Week Lun-Ven with active brush shift
   const handleFillWeekDays = (weekDays) => {
+    if (!brushMode || !selectedShiftId) {
+      setIsShiftPickerOpen(true);
+      return;
+    }
     const activeShift = shifts.find(s => s.id === selectedShiftId);
     if (!activeShift && selectedShiftId !== '__ERASER__') return;
 
@@ -171,6 +188,10 @@ export default function App() {
 
   // Quick Action: Fill Week Lun-Sab
   const handleFillWeekFull = (weekDays) => {
+    if (!brushMode || !selectedShiftId) {
+      setIsShiftPickerOpen(true);
+      return;
+    }
     const activeShift = shifts.find(s => s.id === selectedShiftId);
     if (!activeShift && selectedShiftId !== '__ERASER__') return;
 
@@ -190,10 +211,10 @@ export default function App() {
       }
     });
 
-    // Sunday = Rest
-    const sunDateStr = format(weekDays[6], 'yyyy-MM-dd');
-    if (!newSchedule[sunDateStr] && selectedShiftId !== '__ERASER__') {
-      newSchedule[sunDateStr] = { shiftCode: 'R' };
+    // Domenica Riposo
+    const sunStr = format(weekDays[6], 'yyyy-MM-dd');
+    if (!newSchedule[sunStr] && selectedShiftId !== '__ERASER__') {
+      newSchedule[sunStr] = { shiftCode: 'R' };
     }
 
     setSchedule(newSchedule);
@@ -225,28 +246,17 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenExport={() => setIsExportOpen(true)}
         onOpenWeekPattern={() => setIsWeekPatternOpen(true)}
+        onOpenShiftPicker={() => setIsShiftPickerOpen(true)}
         theme={settings.theme}
         onToggleTheme={handleToggleTheme}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col relative">
         {activeTab === 'calendar' ? (
           <>
-            {/* Quick Shift Palette / Brush bar */}
-            <div className="shift-palette sticky top-[61px] sm:top-[65px] z-20">
-              <ShiftPalette
-                shifts={shifts}
-                selectedShiftId={selectedShiftId}
-                onSelectShift={setSelectedShiftId}
-                brushMode={brushMode}
-                setBrushMode={setBrushMode}
-                onOpenWeekPattern={() => setIsWeekPatternOpen(true)}
-              />
-            </div>
-
-            {/* Monthly Calendar View */}
-            <div className="flex-1 pb-12">
+            {/* Monthly Calendar View (mostrata pulita a schermo intero) */}
+            <div className="flex-1 pb-24 sm:pb-20">
               <CalendarMonth
                 currentDate={currentDate}
                 schedule={schedule}
@@ -260,6 +270,28 @@ export default function App() {
                 onFillWeekFull={handleFillWeekFull}
               />
             </div>
+
+            {/* Pulsante Flottante per aprire la selezione turni (visibile quando non stiamo inserendo) */}
+            {!brushMode && (
+              <button
+                onClick={() => setIsShiftPickerOpen(true)}
+                className="fixed bottom-6 right-5 sm:right-8 z-20 flex items-center gap-2 px-4 sm:px-5 py-3 sm:py-3.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm sm:text-base rounded-2xl shadow-2xl shadow-yellow-400/30 hover:scale-105 active:scale-95 transition-all"
+                title="Scegli un turno da assegnare con un tocco"
+              >
+                <Plus className="w-5 h-5 stroke-[3]" />
+                <span>Assegna Turno</span>
+              </button>
+            )}
+
+            {/* Banner Flottante durante la modalità inserimento rapido */}
+            {brushMode && selectedShiftId && (
+              <ActiveShiftBanner
+                activeShiftId={selectedShiftId}
+                shifts={shifts}
+                onChangeShift={() => setIsShiftPickerOpen(true)}
+                onDone={handleStopAssigning}
+              />
+            )}
           </>
         ) : (
           /* Stats & Reports Tab */
@@ -275,6 +307,14 @@ export default function App() {
       </main>
 
       {/* Modals */}
+      <ShiftPickerModal
+        isOpen={isShiftPickerOpen}
+        onClose={() => setIsShiftPickerOpen(false)}
+        shifts={shifts}
+        onSelectShift={handleSelectShiftToAssign}
+        onOpenWeekPattern={() => setIsWeekPatternOpen(true)}
+      />
+
       <DayEditModal
         isOpen={!!editingDayDate}
         onClose={() => setEditingDayDate(null)}
