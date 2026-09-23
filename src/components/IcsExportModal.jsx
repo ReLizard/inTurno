@@ -67,6 +67,9 @@ export default function IcsExportModal({
   const [activeInfo, setActiveInfo] = useState(null); // 'calendar' | 'whatsapp' | 'photo' | null
   const [showOtherExports, setShowOtherExports] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [showCalendarGuideModal, setShowCalendarGuideModal] = useState(false);
+
+  const isSecure = typeof window !== 'undefined' && window.isSecureContext;
 
   // Stato anteprima foto
   const [isGeneratingPhoto, setIsGeneratingPhoto] = useState(false);
@@ -106,9 +109,11 @@ export default function IcsExportModal({
   const handleOpenInCalendar = async () => {
     const res = await openInCalendarApp(schedule, shifts, startStr, endStr);
     if (res && res.method === 'download') {
-      showToast('File calendario scaricato! Toccalo per aprirlo con Google Calendar o Calendario Apple.');
+      setShowCalendarGuideModal(true);
     } else if (res && res.method === 'share-sheet') {
       showToast('Seleziona Google Calendar o l\'app calendario sul tuo dispositivo.');
+    } else if (res && res.method === 'ios-prompt') {
+      showToast('Tocca "Aggiungi tutti" per salvare gli eventi nel Calendario Apple.');
     }
   };
 
@@ -217,6 +222,22 @@ export default function IcsExportModal({
             <div className="mx-4 mt-3 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold text-emerald-900 dark:text-emerald-200 flex items-center gap-2 animate-fadeIn">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="flex-1">{toastMessage}</span>
+            </div>
+          )}
+
+          {/* Avviso connessione non cifrata (HTTP) se attivo */}
+          {!isSecure && (
+            <div className="mx-4 mt-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5 animate-fadeIn">
+              <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="leading-relaxed">
+                <strong>Attenzione: Connessione non cifrata (HTTP).</strong>
+                <p className="mt-0.5 text-[11px] text-amber-800 dark:text-amber-300">
+                  Per permettere allo smartphone di aprire il foglio nativo di condivisione con le app, connettiti all'indirizzo sicuro in <strong>HTTPS</strong>:{' '}
+                  <a href={`https://${window.location.host}`} className="underline font-bold text-emerald-700 dark:text-yellow-400">
+                    https://{window.location.host}
+                  </a>
+                </p>
+              </div>
             </div>
           )}
 
@@ -618,6 +639,61 @@ export default function IcsExportModal({
                 <span>Condividi Foto</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODALE GUIDA CALENDARIO: SI APRE QUANDO IL FILE VIENE SCARICATO SU SMARTPHONE/PC */}
+      {showCalendarGuideModal && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+          <div 
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900 dark:text-white">
+                    File Calendario Pronto!
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Come aprirlo in 1 tocco nel tuo calendario
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCalendarGuideModal(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-blue-50/70 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/60 text-xs text-slate-700 dark:text-slate-200 space-y-2.5 leading-relaxed">
+              <p className="font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
+                <Smartphone className="w-4 h-4" />
+                <span>Dal tuo smartphone (Android o iPhone):</span>
+              </p>
+              <div className="space-y-1.5 text-[12px]">
+                <p>1. <strong>Abbassa la tendina delle notifiche</strong> in alto sullo schermo del telefono.</p>
+                <p>2. <strong>Tocca la notifica</strong> del file <em>inTurno_...ics</em> appena scaricato.</p>
+                <p>3. Il telefono ti chiederà con quale app aprirlo: scegli <strong>Google Calendar</strong> (o <em>Calendario Samsung</em> o <em>Apple</em>) e conferma con <strong>"Aggiungi tutti"</strong>.</p>
+              </div>
+              <div className="pt-2 border-t border-blue-200/60 dark:border-blue-900/60 text-[11px] text-blue-800 dark:text-blue-300">
+                💡 <strong>Alternativa rapida:</strong> Invia il file scaricato in una chat WhatsApp a te stesso o a un familiare: toccando il file dentro la chat si apre direttamente l'app Calendario!
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowCalendarGuideModal(false)}
+              className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/20 active:scale-95 transition-all"
+            >
+              Ho capito, perfetto!
+            </button>
           </div>
         </div>
       )}

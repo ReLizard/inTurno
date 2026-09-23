@@ -167,6 +167,6 @@ export function createICSFile(schedule, shifts, startDateStr, endDateStr, calend
   ].join('\r\n');
 
   const fileName = `inTurno_calendario_${startDateStr || 'periodo'}.ics`;
-  return new File([icsContent], fileName, { type: 'text/calendar;charset=utf-8' });
+  return new File([icsContent], fileName, { type: 'text/calendar' });
 }
 

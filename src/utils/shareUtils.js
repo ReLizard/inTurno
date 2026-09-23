@@ -402,14 +402,15 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
 
 // Condivisione mobile libera tramite Web Share API con fallback a download
 export async function shareOrDownloadFile(file, downloadName) {
-  if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
+  if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare) {
     try {
-      await navigator.share({
-        title: 'inTurno',
-        text: 'I miei turni di lavoro da inTurno',
-        files: [file]
-      });
-      return { success: true, method: 'share' };
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'inTurno - I Miei Turni'
+        });
+        return { success: true, method: 'share' };
+      }
     } catch (err) {
       if (err.name === 'AbortError') {
         return { success: false, aborted: true };
