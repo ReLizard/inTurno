@@ -2,14 +2,25 @@ import { format, eachDayOfInterval, parseISO, isWeekend } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { CATEGORIES } from '../constants/defaults';
 import { isItalianHoliday } from './holidays';
+import { createICSFile } from './icsExport';
 
 // Helper per formattare il testo WhatsApp
 export function generateWhatsAppText(schedule, shifts, startDate, endDate) {
-  const shiftMap = new Map(shifts.map(s => [s.code, s]));
-  const days = eachDayOfInterval({ start: startDate, end: endDate });
+  const shiftMap = new Map((shifts || []).map(s => [s.code, s]));
+  const safeSchedule = schedule || {};
 
-  const startFormatted = format(startDate, 'd MMM', { locale: it });
-  const endFormatted = format(endDate, 'd MMM yyyy', { locale: it });
+  let s = startDate instanceof Date ? startDate : new Date(startDate);
+  let e = endDate instanceof Date ? endDate : new Date(endDate);
+  if (s > e) {
+    const tmp = s;
+    s = e;
+    e = tmp;
+  }
+
+  const days = eachDayOfInterval({ start: s, end: e });
+
+  const startFormatted = format(s, 'd MMM', { locale: it });
+  const endFormatted = format(e, 'd MMM yyyy', { locale: it });
 
   let text = `🗓️ *I miei turni (${startFormatted} - ${endFormatted})*\n\n`;
 
@@ -22,7 +33,7 @@ export function generateWhatsAppText(schedule, shifts, startDate, endDate) {
     // Capitalize first letter (es. "Lun 22")
     const formattedDayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
     
-    const entry = schedule[dateStr];
+    const entry = safeSchedule[dateStr];
     const holidayName = isItalianHoliday(dateStr);
 
     if (!entry || !entry.shiftCode) {
@@ -79,213 +90,299 @@ export function openWhatsApp(text) {
   window.open(url, '_blank');
 }
 
-// Generatore Immagine Grafica su Canvas (Restituisce un Blob PNG)
+// Apertura diretta nel Calendario del Telefono (Android/iOS)
+export async function openInCalendarApp(schedule, shifts, startStr, endStr) {
+  const calendarName = 'inTurno - I miei Turni';
+  const icsFile = createICSFile(schedule, shifts, startStr, endStr, calendarName);
+  
+  // 1. Prova Web Share API con file (apre su Android e iPhone il selettore app con Calendario / Google Calendar)
+  if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [icsFile] })) {
+    try {
+      await navigator.share({
+        title: 'inTurno - I Miei Turni',
+        text: 'Aggiungi al Calendario',
+        files: [icsFile]
+      });
+      return { success: true, method: 'share-sheet' };
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        return { success: false, aborted: true };
+      }
+      console.warn('Share calendar failed, continuing to direct open/download', err);
+    }
+  }
+
+  // 2. Su iOS Safari: navigare direttamente al blob/data URI fa apparire il popup nativo "Aggiungi al Calendario Apple"
+  const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    const url = URL.createObjectURL(icsFile);
+    window.location.href = url;
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    return { success: true, method: 'ios-prompt' };
+  }
+
+  // 3. Fallback: scarica direttamente il file .ics
+  const url = URL.createObjectURL(icsFile);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `inTurno_${startStr}_${endStr}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  return { success: true, method: 'download' };
+}
+
+// Download esplicito del solo file .ics
+export function downloadICSFile(schedule, shifts, startStr, endStr) {
+  const calendarName = 'inTurno - I miei Turni';
+  const icsFile = createICSFile(schedule, shifts, startStr, endStr, calendarName);
+  const url = URL.createObjectURL(icsFile);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `inTurno_${startStr}_${endStr}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  return true;
+}
+
+// Generatore Immagine Grafica su Canvas (Restituisce Promise<{ blob, dataUrl }>)
 export function renderScheduleCardToCanvas({
   schedule,
   shifts,
   startDate,
   endDate,
   theme = 'light',
-  title = 'I Miei Turni'
+  title = 'I Miei Turni di Lavoro'
 }) {
-  return new Promise((resolve) => {
-    const shiftMap = new Map(shifts.map(s => [s.code, s]));
-    const days = eachDayOfInterval({ start: startDate, end: endDate });
+  return new Promise((resolve, reject) => {
+    try {
+      const shiftMap = new Map((shifts || []).map(s => [s.code, s]));
+      const safeSchedule = schedule || {};
 
-    // Dimensioni per una visualizzazione perfetta (es. 1080 x auto, ideale per smartphone)
-    const width = 1080;
-    const padding = 60;
-    const headerHeight = 220;
-    const rowHeight = 95;
-    const footerHeight = 160;
-    const height = headerHeight + (days.length * rowHeight) + footerHeight;
-
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-
-    const isLight = theme === 'light';
-
-    // 1. Sfondo generale
-    ctx.fillStyle = isLight ? '#eef7f2' : '#0b0f17';
-    ctx.fillRect(0, 0, width, height);
-
-    // Scheda principale contenitore
-    const cardX = padding;
-    const cardY = padding;
-    const cardW = width - (padding * 2);
-    const cardH = height - (padding * 2);
-
-    // Disegna card arrotondata
-    drawRoundedRect(ctx, cardX, cardY, cardW, cardH, 40);
-    ctx.fillStyle = isLight ? '#ffffff' : '#141a23';
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = isLight ? '#d5e9dc' : '#222b38';
-    ctx.stroke();
-
-    // 2. Intestazione Scheda
-    // Brand pill
-    const brandX = cardX + 50;
-    const brandY = cardY + 50;
-    drawRoundedRect(ctx, brandX, brandY, 130, 44, 16);
-    ctx.fillStyle = isLight ? '#059669' : '#eab308';
-    ctx.fill();
-    ctx.fillStyle = isLight ? '#ffffff' : '#0f172a';
-    ctx.font = 'bold 22px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('inTurno', brandX + 65, brandY + 22);
-
-    // Titolo
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
-    ctx.font = '900 48px system-ui, -apple-system, sans-serif';
-    ctx.fillText(title, brandX + 150, brandY + 36);
-
-    // Intervallo date
-    const startStr = format(startDate, 'd MMMM', { locale: it });
-    const endStr = format(endDate, 'd MMMM yyyy', { locale: it });
-    ctx.fillStyle = isLight ? '#059669' : '#facc15';
-    ctx.font = 'bold 26px system-ui, -apple-system, sans-serif';
-    ctx.fillText(`${startStr} - ${endStr}`, brandX, brandY + 85);
-
-    // Linea divisoria header
-    const sepY = cardY + 160;
-    ctx.beginPath();
-    ctx.moveTo(cardX + 40, sepY);
-    ctx.lineTo(cardX + cardW - 40, sepY);
-    ctx.strokeStyle = isLight ? '#e2e8f0' : '#1e293b';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // 3. Righe dei Giorni
-    let currentY = sepY + 25;
-    let workedDaysCount = 0;
-    let totalEstHours = 0;
-
-    days.forEach((day, idx) => {
-      const dateStr = format(day, 'yyyy-MM-dd');
-      const dayName = format(day, 'EEEE d MMMM', { locale: it });
-      const capitalizedDayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
-      const isWeekendDay = isWeekend(day);
-      const holidayName = isItalianHoliday(dateStr);
-
-      const entry = schedule[dateStr];
-      const shift = entry?.shiftCode ? shiftMap.get(entry.shiftCode) : null;
-      const isRest = shift?.category === CATEGORIES.REST || entry?.shiftCode === 'R';
-
-      // Sfondo alternato per riga
-      const rowBoxY = currentY - 5;
-      if (idx % 2 === 1) {
-        drawRoundedRect(ctx, cardX + 30, rowBoxY, cardW - 60, rowHeight - 12, 18);
-        ctx.fillStyle = isLight ? '#f8fafc' : '#19212d';
-        ctx.fill();
+      let s = startDate instanceof Date ? startDate : new Date(startDate);
+      let e = endDate instanceof Date ? endDate : new Date(endDate);
+      if (s > e) {
+        const tmp = s;
+        s = e;
+        e = tmp;
       }
 
-      // Evidenziazione festività o weekend
-      if (holidayName) {
-        drawRoundedRect(ctx, cardX + 30, rowBoxY, cardW - 60, rowHeight - 12, 18);
-        ctx.fillStyle = isLight ? '#fff1f2' : '#2c1218';
-        ctx.fill();
-        ctx.strokeStyle = isLight ? '#fecdd3' : '#881337';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+      const days = eachDayOfInterval({ start: s, end: e });
+
+      // Dimensioni per una visualizzazione perfetta (1080px ideale per smartphone, Instagram, WhatsApp)
+      const width = 1080;
+      const padding = 50;
+      const headerHeight = 220;
+      const rowHeight = 96;
+      const footerHeight = 150;
+      const height = headerHeight + (days.length * rowHeight) + footerHeight;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Canvas 2D non disponibile');
       }
 
-      // 1. Data e Giorno
+      const isLight = theme === 'light';
+
+      // 1. Sfondo generale (richiama il tema pastel green o dark)
+      ctx.fillStyle = isLight ? '#eef7f2' : '#0b0f17';
+      ctx.fillRect(0, 0, width, height);
+
+      // Scheda principale contenitore
+      const cardX = padding;
+      const cardY = padding;
+      const cardW = width - (padding * 2);
+      const cardH = height - (padding * 2);
+
+      // Disegna card arrotondata
+      drawRoundedRect(ctx, cardX, cardY, cardW, cardH, 36);
+      ctx.fillStyle = isLight ? '#ffffff' : '#141a23';
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = isLight ? '#d5e9dc' : '#222b38';
+      ctx.stroke();
+
+      // 2. Intestazione Scheda
+      // Brand pill
+      const brandX = cardX + 45;
+      const brandY = cardY + 45;
+      drawRoundedRect(ctx, brandX, brandY, 130, 44, 14);
+      ctx.fillStyle = isLight ? '#059669' : '#eab308';
+      ctx.fill();
+      ctx.fillStyle = isLight ? '#ffffff' : '#0f172a';
+      ctx.font = 'bold 22px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('inTurno', brandX + 65, brandY + 22);
+
+      // Titolo
       ctx.textAlign = 'left';
-      ctx.font = isWeekendDay || holidayName ? 'bold 28px system-ui, sans-serif' : '600 28px system-ui, sans-serif';
-      if (holidayName) {
-        ctx.fillStyle = isLight ? '#e11d48' : '#fb7185';
-      } else if (isWeekendDay) {
-        ctx.fillStyle = isLight ? '#047857' : '#f59e0b';
-      } else {
-        ctx.fillStyle = isLight ? '#334155' : '#cbd5e1';
-      }
-      ctx.fillText(capitalizedDayName, cardX + 60, currentY + 45);
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
+      ctx.font = '900 44px system-ui, -apple-system, sans-serif';
+      ctx.fillText(title, brandX + 155, brandY + 36);
 
-      // Badge Turno
-      const badgeW = 90;
-      const badgeH = 50;
-      const badgeX = cardX + cardW - 480;
-      const badgeY = currentY + 12;
+      // Intervallo date
+      const startStr = format(s, 'd MMMM', { locale: it });
+      const endStr = format(e, 'd MMMM yyyy', { locale: it });
+      ctx.fillStyle = isLight ? '#059669' : '#facc15';
+      ctx.font = 'bold 26px system-ui, -apple-system, sans-serif';
+      ctx.fillText(`${startStr} - ${endStr}`, brandX, brandY + 88);
 
-      if (entry?.shiftCode) {
-        const badgeColor = shift?.color || (isRest ? '#64748b' : '#3b82f6');
-        const badgeTextColor = shift?.textColor || '#ffffff';
+      // Linea divisoria header
+      const sepY = cardY + 160;
+      ctx.beginPath();
+      ctx.moveTo(cardX + 40, sepY);
+      ctx.lineTo(cardX + cardW - 40, sepY);
+      ctx.strokeStyle = isLight ? '#e2e8f0' : '#1e293b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
 
-        drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 14);
-        ctx.fillStyle = badgeColor;
-        ctx.fill();
+      // 3. Righe dei Giorni
+      let currentY = sepY + 20;
+      let workedDaysCount = 0;
+      let totalEstHours = 0;
 
-        ctx.fillStyle = badgeTextColor;
-        ctx.font = '900 24px system-ui, -apple-system, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(entry.shiftCode, badgeX + (badgeW / 2), badgeY + (badgeH / 2));
+      days.forEach((day, idx) => {
+        const dateStr = format(day, 'yyyy-MM-dd');
+        const dayName = format(day, 'EEEE d MMMM', { locale: it });
+        const capitalizedDayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+        const isWeekendDay = isWeekend(day);
+        const holidayName = isItalianHoliday(dateStr);
 
-        // Orari e dettagli
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'alphabetic';
-        ctx.font = 'bold 24px system-ui, sans-serif';
-        ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
-        const shiftName = shift?.name || entry.shiftCode;
-        ctx.fillText(shiftName, badgeX + badgeW + 25, currentY + 36);
+        const entry = safeSchedule[dateStr];
+        const shift = entry?.shiftCode ? shiftMap.get(entry.shiftCode) : null;
+        const isRest = shift?.category === CATEGORIES.REST || entry?.shiftCode === 'R';
 
-        const startTime = entry.customStartTime || shift?.startTime;
-        const endTime = entry.customEndTime || shift?.endTime;
-        if (startTime && endTime) {
-          ctx.font = '500 20px monospace, monospace';
-          ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
-          ctx.fillText(`${startTime} - ${endTime}`, badgeX + badgeW + 25, currentY + 62);
-        } else if (isRest) {
-          ctx.font = 'italic 20px system-ui, sans-serif';
-          ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
-          ctx.fillText('Giornata di riposo', badgeX + badgeW + 25, currentY + 62);
+        // Sfondo alternato per riga
+        const rowBoxY = currentY;
+        const rowBoxH = rowHeight - 12;
+        if (idx % 2 === 1) {
+          drawRoundedRect(ctx, cardX + 25, rowBoxY, cardW - 50, rowBoxH, 16);
+          ctx.fillStyle = isLight ? '#f8fafc' : '#19212d';
+          ctx.fill();
         }
 
-        if (!isRest) {
-          workedDaysCount++;
-          totalEstHours += shift?.hours || 8;
+        // Evidenziazione festività
+        if (holidayName) {
+          drawRoundedRect(ctx, cardX + 25, rowBoxY, cardW - 50, rowBoxH, 16);
+          ctx.fillStyle = isLight ? '#fff1f2' : '#2c1218';
+          ctx.fill();
+          ctx.strokeStyle = isLight ? '#fecdd3' : '#881337';
+          ctx.lineWidth = 2;
+          ctx.stroke();
         }
-      } else {
-        // Giorno vuoto
+
+        // Data e Giorno (colonna sinistra)
         ctx.textAlign = 'left';
-        ctx.textBaseline = 'alphabetic';
-        ctx.font = 'italic 22px system-ui, sans-serif';
-        ctx.fillStyle = isLight ? '#94a3b8' : '#64748b';
-        ctx.fillText('Libero / Nessun turno', badgeX, currentY + 45);
+        ctx.font = isWeekendDay || holidayName ? 'bold 28px system-ui, sans-serif' : '600 28px system-ui, sans-serif';
+        if (holidayName) {
+          ctx.fillStyle = isLight ? '#e11d48' : '#fb7185';
+        } else if (isWeekendDay) {
+          ctx.fillStyle = isLight ? '#047857' : '#f59e0b';
+        } else {
+          ctx.fillStyle = isLight ? '#334155' : '#cbd5e1';
+        }
+        ctx.fillText(capitalizedDayName, cardX + 50, currentY + 52);
+
+        // Badge Turno (colonna destra)
+        const badgeW = 95;
+        const badgeH = 52;
+        const badgeX = cardX + cardW - 460;
+        const badgeY = currentY + 16;
+
+        if (entry?.shiftCode) {
+          const badgeColor = shift?.color || (isRest ? '#64748b' : '#3b82f6');
+          const badgeTextColor = shift?.textColor || '#ffffff';
+
+          drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 14);
+          ctx.fillStyle = badgeColor;
+          ctx.fill();
+
+          ctx.fillStyle = badgeTextColor;
+          ctx.font = '900 24px system-ui, -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(entry.shiftCode, badgeX + (badgeW / 2), badgeY + (badgeH / 2));
+
+          // Orari e dettagli
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'alphabetic';
+          ctx.font = 'bold 24px system-ui, sans-serif';
+          ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
+          const shiftName = shift?.name || entry.shiftCode;
+          ctx.fillText(shiftName, badgeX + badgeW + 24, currentY + 40);
+
+          const startTime = entry.customStartTime || shift?.startTime;
+          const endTime = entry.customEndTime || shift?.endTime;
+          if (startTime && endTime) {
+            ctx.font = '600 20px monospace, monospace';
+            ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
+            ctx.fillText(`${startTime} - ${endTime}`, badgeX + badgeW + 24, currentY + 68);
+          } else if (isRest) {
+            ctx.font = 'italic 20px system-ui, sans-serif';
+            ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
+            ctx.fillText('Giornata di riposo', badgeX + badgeW + 24, currentY + 68);
+          }
+
+          if (!isRest) {
+            workedDaysCount++;
+            totalEstHours += shift?.hours || 8;
+          }
+        } else {
+          // Giorno vuoto
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'alphabetic';
+          ctx.font = 'italic 22px system-ui, sans-serif';
+          ctx.fillStyle = isLight ? '#94a3b8' : '#64748b';
+          ctx.fillText('Libero / Nessun turno', badgeX, currentY + 50);
+        }
+
+        currentY += rowHeight;
+      });
+
+      // 4. Footer con Statistiche
+      const footerY = currentY + 15;
+      ctx.beginPath();
+      ctx.moveTo(cardX + 40, footerY);
+      ctx.lineTo(cardX + cardW - 40, footerY);
+      ctx.strokeStyle = isLight ? '#e2e8f0' : '#1e293b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
+      ctx.font = 'bold 24px system-ui, sans-serif';
+      ctx.fillText(`Totale: ${workedDaysCount} giorni lavorati (~${totalEstHours} ore stimate)`, cardX + 50, footerY + 45);
+
+      ctx.textAlign = 'right';
+      ctx.fillStyle = isLight ? '#059669' : '#eab308';
+      ctx.font = 'bold 22px system-ui, sans-serif';
+      ctx.fillText('Creato con inTurno PWA', cardX + cardW - 50, footerY + 45);
+
+      // Generazione sincrona e garantita del DataURL e Blob
+      const dataUrl = canvas.toDataURL('image/png');
+      const byteString = atob(dataUrl.split(',')[1]);
+      const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
       }
+      const blob = new Blob([ab], { type: mimeString });
 
-      currentY += rowHeight;
-    });
-
-    // 4. Footer con Statistiche
-    const footerY = currentY + 20;
-    ctx.beginPath();
-    ctx.moveTo(cardX + 40, footerY);
-    ctx.lineTo(cardX + cardW - 40, footerY);
-    ctx.strokeStyle = isLight ? '#e2e8f0' : '#1e293b';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
-    ctx.font = 'bold 24px system-ui, sans-serif';
-    ctx.fillText(`Totale: ${workedDaysCount} giorni lavorati (~${totalEstHours} ore stimate)`, cardX + 60, footerY + 40);
-
-    ctx.textAlign = 'right';
-    ctx.fillStyle = isLight ? '#059669' : '#eab308';
-    ctx.font = 'bold 22px system-ui, sans-serif';
-    ctx.fillText('Creato con inTurno PWA', cardX + cardW - 60, footerY + 40);
-
-    canvas.toBlob((blob) => {
-      resolve({ blob, dataUrl: canvas.toDataURL('image/png') });
-    }, 'image/png');
+      resolve({ blob, dataUrl });
+    } catch (err) {
+      console.error('Errore creazione canvas:', err);
+      reject(err);
+    }
   });
 }
 
@@ -305,20 +402,19 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
 
 // Condivisione mobile libera tramite Web Share API con fallback a download
 export async function shareOrDownloadFile(file, downloadName) {
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+  if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({
         title: 'inTurno',
         text: 'I miei turni di lavoro da inTurno',
         files: [file]
       });
-      return true;
+      return { success: true, method: 'share' };
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.warn('Share error, fallback to download', err);
-      } else {
-        return false;
+      if (err.name === 'AbortError') {
+        return { success: false, aborted: true };
       }
+      console.warn('Share error, fallback to download', err);
     }
   }
 
@@ -330,6 +426,6 @@ export async function shareOrDownloadFile(file, downloadName) {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  return true;
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  return { success: true, method: 'download' };
 }

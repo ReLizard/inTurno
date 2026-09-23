@@ -146,13 +146,14 @@ export default function Navbar({
             <span className="hidden md:inline">Schema Rapido</span>
           </button>
 
-          {/* Export button */}
+          {/* Share & Export button */}
           <button
             onClick={onOpenExport}
-            title="Esporta Calendario (.ics, CSV, Stampa)"
-            className="p-2 rounded-xl bg-white hover:bg-emerald-50 text-slate-600 hover:text-slate-900 border border-emerald-900/10 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:hover:text-white dark:border-slate-700 transition-all shadow-sm"
+            title="Condividi i tuoi turni (WhatsApp, Foto, Calendario)"
+            className="p-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 border border-emerald-900/10 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-emerald-400 dark:hover:text-emerald-300 dark:border-slate-700 transition-all shadow-sm flex items-center gap-1.5"
           >
-            <Download className="w-4 h-4" />
+            <Share2 className="w-4 h-4 stroke-[2.5]" />
+            <span className="hidden xl:inline text-xs font-bold">Condividi</span>
           </button>
 
           {/* Settings button */}
