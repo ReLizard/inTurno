@@ -1,6 +1,9 @@
 <div align="center">
 
-# 🗓️ inTurno — Organizza il Lavoro
+<img src="public/logo-card.png" alt="inTurno - Organizza il Lavoro" width="540" />
+
+<br/>
+<br/>
 
 **Progressive Web App (PWA) moderna, veloce ed elegante per la pianificazione, gestione e condivisione dei turni di lavoro.**
 
