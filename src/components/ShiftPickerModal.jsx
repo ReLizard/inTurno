@@ -18,25 +18,25 @@ export default function ShiftPickerModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
-        className="w-full sm:max-w-xl bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] transition-all"
+        className="w-full sm:max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-emerald-100 dark:border-slate-800 bg-emerald-50/50 dark:bg-slate-900/90">
           <div>
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-yellow-400" />
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <CalendarDays className="w-5 h-5 text-emerald-600 dark:text-yellow-400" />
               Scegli il Turno da Inserire
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Seleziona un turno e poi tocca i giorni nel calendario per assegnarlo
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-white dark:hover:bg-slate-800 transition-colors"
             title="Chiudi"
           >
             <X className="w-5 h-5" />
@@ -50,7 +50,7 @@ export default function ShiftPickerModal({
               <button
                 key={shift.id}
                 onClick={() => handlePick(shift.id)}
-                className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 hover:border-yellow-400/50 hover:shadow-lg hover:shadow-yellow-400/5 transition-all text-left group active:scale-[0.98]"
+                className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/60 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-slate-200/80 hover:border-emerald-300 dark:border-slate-700/60 dark:hover:border-yellow-400/50 hover:shadow-md transition-all text-left group active:scale-[0.98]"
               >
                 {/* Colored Badge */}
                 <div
@@ -65,16 +65,16 @@ export default function ShiftPickerModal({
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm text-slate-100 group-hover:text-yellow-400 transition-colors truncate">
+                  <div className="font-bold text-sm text-slate-800 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-yellow-400 transition-colors truncate">
                     {shift.name}
                   </div>
                   {shift.startTime && shift.endTime ? (
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
-                      <Clock className="w-3 h-3 text-slate-500 shrink-0" />
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500 shrink-0" />
                       <span>{shift.startTime} - {shift.endTime}</span>
                     </div>
                   ) : (
-                    <div className="text-xs text-slate-500 mt-0.5">
+                    <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                       Nessun orario prefissato
                     </div>
                   )}
@@ -85,16 +85,16 @@ export default function ShiftPickerModal({
             {/* Eraser option */}
             <button
               onClick={() => handlePick('__ERASER__')}
-              className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/80 hover:bg-slate-800 border border-dashed border-rose-500/40 hover:border-rose-400 hover:shadow-lg hover:shadow-rose-500/10 transition-all text-left group active:scale-[0.98]"
+              className="flex items-center gap-3.5 p-3 rounded-2xl bg-rose-50/40 hover:bg-rose-50 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-dashed border-rose-300/70 hover:border-rose-400 dark:border-rose-500/40 dark:hover:border-rose-400 hover:shadow-md transition-all text-left group active:scale-[0.98]"
             >
-              <div className="w-12 h-12 rounded-xl bg-rose-500/20 border border-rose-500/50 text-rose-400 flex items-center justify-center shadow-sm shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-rose-100 border border-rose-300 text-rose-600 dark:bg-rose-500/20 dark:border-rose-500/50 dark:text-rose-400 flex items-center justify-center shadow-sm shrink-0 group-hover:scale-105 transition-transform">
                 <Eraser className="w-6 h-6" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-bold text-sm text-rose-400 group-hover:text-rose-300 transition-colors">
+                <div className="font-bold text-sm text-rose-600 group-hover:text-rose-700 dark:text-rose-400 dark:group-hover:text-rose-300 transition-colors">
                   Cancella Turno (Gomma)
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5">
+                <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Rimuove il turno dai giorni toccati
                 </div>
               </div>
@@ -109,9 +109,9 @@ export default function ShiftPickerModal({
                   onClose();
                   onOpenWeekPattern();
                 }}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800/40 hover:bg-slate-800 border border-slate-700/50 text-xs font-semibold text-slate-300 hover:text-yellow-400 flex items-center justify-center gap-2 transition-all"
+                className="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-xs font-semibold text-emerald-800 dark:bg-slate-800/40 dark:hover:bg-slate-800 dark:border-slate-700/50 dark:text-slate-300 dark:hover:text-yellow-400 flex items-center justify-center gap-2 transition-all"
               >
-                <Sparkles className="w-4 h-4 text-yellow-400" />
+                <Sparkles className="w-4 h-4 text-emerald-600 dark:text-yellow-400" />
                 <span>Devi compilare intere settimane o mesi a schema ricorrente? Clicca qui</span>
               </button>
             </div>

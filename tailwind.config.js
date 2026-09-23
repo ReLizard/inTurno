@@ -15,7 +15,9 @@ export default {
           yellow: '#facc15',
           gold: '#eab308',
           green: '#22c55e',
-          neon: '#4ade80'
+          neon: '#4ade80',
+          pastel: '#eef7f2',
+          pastelBorder: '#d5e9dc'
         }
       }
     },

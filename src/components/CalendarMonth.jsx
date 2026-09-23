@@ -51,11 +51,11 @@ export default function CalendarMonth({
   return (
     <div className="w-full max-w-7xl mx-auto px-1 sm:px-6 py-3 sm:py-4">
       {/* Calendar Card */}
-      <div className="bg-slate-900/90 dark:bg-slate-900/80 rounded-2xl sm:rounded-3xl border border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
+      <div className="bg-white/95 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl border border-emerald-900/10 dark:border-slate-800 shadow-xl shadow-emerald-950/5 overflow-hidden backdrop-blur-sm transition-colors">
         
         {/* Weekdays Header: Colonne con larghezza rigidamente uniforme tramite minmax(0, 1fr) */}
-        <div className="grid grid-cols-[28px_repeat(7,minmax(0,1fr))] sm:grid-cols-[46px_repeat(7,minmax(0,1fr))] bg-slate-800/80 border-b border-slate-700/80 text-center font-bold text-xs sm:text-sm text-slate-300 py-2 sm:py-2.5">
-          <div className="text-[9px] sm:text-xs text-slate-400 uppercase tracking-wider flex items-center justify-center font-semibold" title="Azioni Rapide Settimana">
+        <div className="grid grid-cols-[28px_repeat(7,minmax(0,1fr))] sm:grid-cols-[46px_repeat(7,minmax(0,1fr))] bg-emerald-50/80 dark:bg-slate-800/80 border-b border-emerald-100 dark:border-slate-700/80 text-center font-bold text-xs sm:text-sm text-slate-700 dark:text-slate-300 py-2 sm:py-2.5">
+          <div className="text-[9px] sm:text-xs text-emerald-700/60 dark:text-slate-400 uppercase tracking-wider flex items-center justify-center font-semibold" title="Azioni Rapide Settimana">
             #
           </div>
           {shortWeekDayLabels.map((dayLabel, idx) => {
@@ -64,7 +64,7 @@ export default function CalendarMonth({
               <div 
                 key={dayLabel} 
                 className={`flex flex-col items-center justify-center min-w-0 overflow-hidden px-0.5 ${
-                  isSatSun ? 'text-amber-400 font-extrabold' : 'text-slate-200'
+                  isSatSun ? 'text-emerald-700 dark:text-amber-400 font-extrabold' : 'text-slate-700 dark:text-slate-200'
                 }`}
               >
                 <span className="hidden sm:inline truncate">{weekDayLabels[idx]}</span>
@@ -75,18 +75,18 @@ export default function CalendarMonth({
         </div>
 
         {/* Calendar Grid by Weeks */}
-        <div className="divide-y divide-slate-800/60">
+        <div className="divide-y divide-emerald-100/70 dark:divide-slate-800/60">
           {weeks.map((week, weekIdx) => {
             const weekNumber = format(week[0], 'w', { locale: it });
 
             return (
               <div 
                 key={weekIdx} 
-                className="grid grid-cols-[28px_repeat(7,minmax(0,1fr))] sm:grid-cols-[46px_repeat(7,minmax(0,1fr))] divide-x divide-slate-800/40 min-h-[86px] sm:min-h-[118px]"
+                className="grid grid-cols-[28px_repeat(7,minmax(0,1fr))] sm:grid-cols-[46px_repeat(7,minmax(0,1fr))] divide-x divide-emerald-100/70 dark:divide-slate-800/40 min-h-[86px] sm:min-h-[118px]"
               >
                 {/* Quick Week Action Button Sidebar */}
-                <div className="bg-slate-950/40 flex flex-col items-center justify-center p-0.5 sm:p-1 gap-1 group select-none min-w-0 overflow-hidden">
-                  <span className="text-[9px] sm:text-xs font-mono font-bold text-slate-400 truncate">
+                <div className="bg-emerald-50/40 dark:bg-slate-950/40 flex flex-col items-center justify-center p-0.5 sm:p-1 gap-1 group select-none min-w-0 overflow-hidden">
+                  <span className="text-[9px] sm:text-xs font-mono font-bold text-emerald-800/60 dark:text-slate-400 truncate">
                     {weekNumber}
                   </span>
                   
@@ -94,7 +94,7 @@ export default function CalendarMonth({
                   <button
                     onClick={() => onFillWeekDays(week)}
                     title={`Riempi Lun-Ven ${activeBrushShift ? `con turno ${activeBrushShift.code}` : ''}`}
-                    className="p-1 rounded-lg bg-slate-800/80 hover:bg-yellow-400 hover:text-slate-950 text-slate-400 transition-all active:scale-95 border border-slate-700/50 shadow-sm"
+                    className="p-1 rounded-lg bg-white hover:bg-emerald-600 hover:text-white text-slate-500 border border-emerald-200/80 dark:bg-slate-800/80 dark:hover:bg-yellow-400 dark:hover:text-slate-950 dark:text-slate-400 dark:border-slate-700/50 shadow-sm transition-all active:scale-95"
                   >
                     <Zap className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
                   </button>
@@ -102,7 +102,7 @@ export default function CalendarMonth({
                   <button
                     onClick={() => onFillWeekFull(week)}
                     title="Riempi Lun-Sab"
-                    className="hidden sm:flex p-0.5 rounded text-[8px] font-bold text-slate-400 hover:text-white hover:bg-slate-800"
+                    className="hidden sm:flex p-0.5 rounded text-[8px] font-bold text-slate-500 hover:text-emerald-800 hover:bg-emerald-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
                   >
                     6g
                   </button>
@@ -128,17 +128,17 @@ export default function CalendarMonth({
                       }}
                       className={`relative p-1 sm:p-2 flex flex-col justify-between transition-all cursor-pointer select-none group min-h-[86px] sm:min-h-[118px] min-w-0 max-w-full overflow-hidden ${
                         !isCurrentMonth 
-                          ? 'bg-slate-950/60 opacity-30 hover:opacity-60' 
+                          ? 'bg-slate-100/50 text-slate-400 dark:bg-slate-950/60 opacity-35 hover:opacity-60' 
                           : isWeekendDay 
-                            ? 'bg-slate-900/40 hover:bg-slate-800/60' 
-                            : 'bg-slate-900/70 hover:bg-slate-800/80'
+                            ? 'bg-emerald-50/25 hover:bg-emerald-50/50 dark:bg-slate-900/40 dark:hover:bg-slate-800/60' 
+                            : 'bg-white hover:bg-emerald-50/40 dark:bg-slate-900/70 dark:hover:bg-slate-800/80'
                       } ${
                         isDayToday 
-                          ? 'ring-2 ring-yellow-400 ring-inset bg-yellow-400/5' 
+                          ? 'ring-2 ring-emerald-600 dark:ring-yellow-400 ring-inset bg-emerald-500/[0.06] dark:bg-yellow-400/5' 
                           : ''
                       } ${
                         holidayName 
-                          ? 'border-t-2 border-t-rose-500 bg-rose-500/[0.03]' 
+                          ? 'border-t-2 border-t-rose-500 bg-rose-500/[0.04]' 
                           : ''
                       }`}
                     >
@@ -148,12 +148,12 @@ export default function CalendarMonth({
                           title={holidayName ? `Festività: ${holidayName}` : undefined}
                           className={`inline-flex items-center justify-center font-bold text-xs sm:text-sm rounded transition-transform group-hover:scale-105 shrink-0 ${
                             isDayToday
-                              ? 'bg-yellow-400 text-slate-950 px-1 py-0.5 shadow font-extrabold rounded-md'
+                              ? 'bg-emerald-600 text-white dark:bg-yellow-400 dark:text-slate-950 px-1 py-0.5 shadow-sm font-extrabold rounded-md'
                               : holidayName
-                                ? 'text-rose-400 font-black'
+                                ? 'text-rose-600 dark:text-rose-400 font-black'
                                 : isWeekendDay
-                                  ? 'text-amber-300 font-bold'
-                                  : 'text-slate-200'
+                                  ? 'text-emerald-800 dark:text-amber-300 font-bold'
+                                  : 'text-slate-800 dark:text-slate-200'
                           }`}
                         >
                           {format(day, 'd')}
@@ -166,7 +166,7 @@ export default function CalendarMonth({
                             onDayLongPress(day, dateStr);
                           }}
                           title="Modifica dettagli giorno"
-                          className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-white hover:bg-slate-700 transition-opacity hidden sm:block shrink-0"
+                          className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-emerald-800 hover:bg-emerald-100/70 dark:hover:text-white dark:hover:bg-slate-700 transition-opacity hidden sm:block shrink-0"
                         >
                           <Edit2 className="w-3 h-3" />
                         </button>
@@ -195,8 +195,8 @@ export default function CalendarMonth({
                             )}
                           </div>
                         ) : (
-                          <div className="h-5 sm:h-7 flex items-center justify-center text-slate-600/70 border border-dashed border-slate-800/70 rounded-lg group-hover:border-slate-700 group-hover:text-slate-500">
-                            <span className="text-[9px] hidden sm:group-hover:inline font-medium text-slate-500">+</span>
+                          <div className="h-5 sm:h-7 flex items-center justify-center text-slate-300 dark:text-slate-600/70 border border-dashed border-emerald-200/80 dark:border-slate-800/70 rounded-lg group-hover:border-emerald-400 dark:group-hover:border-slate-700 group-hover:text-emerald-600 dark:group-hover:text-slate-500">
+                            <span className="text-[9px] hidden sm:group-hover:inline font-medium text-emerald-600 dark:text-slate-500">+</span>
                           </div>
                         )}
                       </div>
@@ -209,17 +209,17 @@ export default function CalendarMonth({
                               key={idx}
                               className={`text-[7px] sm:text-[9px] font-extrabold px-1 py-0.2 rounded truncate max-w-[32px] sm:max-w-none shrink-0 ${
                                 modLabel.startsWith('+')
-                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30'
                                   : modLabel.startsWith('-')
-                                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                    : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                                    ? 'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30'
+                                    : 'bg-indigo-100 text-indigo-800 border border-indigo-300 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30'
                               }`}
                             >
                               {modLabel}
                             </span>
                           ))}
                           {entry?.modifiers && entry.modifiers.length > 2 && (
-                            <span className="text-[7px] text-slate-400 font-bold shrink-0">
+                            <span className="text-[7px] text-slate-500 dark:text-slate-400 font-bold shrink-0">
                               +{entry.modifiers.length - 2}
                             </span>
                           )}
@@ -229,9 +229,9 @@ export default function CalendarMonth({
                         {entry?.note && (
                           <span 
                             title={entry.note} 
-                            className="inline-flex items-center text-yellow-400 text-[9px] sm:text-[10px] shrink-0"
+                            className="inline-flex items-center text-amber-500 dark:text-yellow-400 text-[9px] sm:text-[10px] shrink-0"
                           >
-                            <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-yellow-400/20" />
+                            <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-500/20 dark:fill-yellow-400/20" />
                           </span>
                         )}
                       </div>

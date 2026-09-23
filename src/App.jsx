@@ -233,7 +233,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-yellow-400 selection:text-slate-950">
+    <div className="min-h-screen bg-[#eef7f2] text-slate-800 dark:bg-slate-950 dark:text-slate-100 flex flex-col selection:bg-emerald-200 selection:text-emerald-950 dark:selection:bg-yellow-400 dark:selection:text-slate-950 transition-colors duration-200">
       
       {/* Top Navigation */}
       <Navbar
@@ -275,7 +275,7 @@ export default function App() {
             {!brushMode && (
               <button
                 onClick={() => setIsShiftPickerOpen(true)}
-                className="fixed bottom-6 right-5 sm:right-8 z-20 flex items-center gap-2 px-4 sm:px-5 py-3 sm:py-3.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm sm:text-base rounded-2xl shadow-2xl shadow-yellow-400/30 hover:scale-105 active:scale-95 transition-all"
+                className="fixed bottom-6 right-5 sm:right-8 z-20 flex items-center gap-2 px-4 sm:px-5 py-3 sm:py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white dark:bg-yellow-400 dark:hover:bg-yellow-300 dark:text-slate-950 font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-emerald-900/20 dark:shadow-yellow-400/30 hover:scale-105 active:scale-95 transition-all"
                 title="Scegli un turno da assegnare con un tocco"
               >
                 <Plus className="w-5 h-5 stroke-[3]" />

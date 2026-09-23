@@ -56,29 +56,29 @@ export default function IcsExportModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
       <div 
-        className="bg-slate-900 border border-slate-700/80 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col"
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-800 bg-slate-900/90 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-emerald-100 dark:border-slate-800 bg-emerald-50/50 dark:bg-slate-900/90 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-yellow-400/10 text-yellow-400 border border-yellow-400/20">
+            <div className="p-2 rounded-xl bg-emerald-600/10 text-emerald-700 border border-emerald-600/20 dark:bg-yellow-400/10 dark:text-yellow-400 dark:border-yellow-400/20">
               <Download className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-black text-white">
+              <h3 className="text-lg font-black text-slate-900 dark:text-white">
                 Esporta & Condividi
               </h3>
-              <p className="text-xs text-slate-400 font-medium">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 Sincronizza con Google/Apple Calendar o esporta in Excel
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-white dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -87,7 +87,7 @@ export default function IcsExportModal({
         {/* Body */}
         <div className="p-5 space-y-4">
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
               Seleziona Intervallo
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -96,8 +96,8 @@ export default function IcsExportModal({
                 onClick={() => setRangeType('month')}
                 className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
                   rangeType === 'month'
-                    ? 'bg-yellow-400 text-slate-950 border-yellow-400 shadow'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm dark:bg-yellow-400 dark:text-slate-950 dark:border-yellow-400'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:text-white'
                 }`}
               >
                 Mese Corrente
@@ -107,8 +107,8 @@ export default function IcsExportModal({
                 onClick={() => setRangeType('3months')}
                 className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
                   rangeType === '3months'
-                    ? 'bg-yellow-400 text-slate-950 border-yellow-400 shadow'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm dark:bg-yellow-400 dark:text-slate-950 dark:border-yellow-400'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:text-white'
                 }`}
               >
                 Prossimi 3 Mesi
@@ -118,8 +118,8 @@ export default function IcsExportModal({
                 onClick={() => setRangeType('year')}
                 className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
                   rangeType === 'year'
-                    ? 'bg-yellow-400 text-slate-950 border-yellow-400 shadow'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm dark:bg-yellow-400 dark:text-slate-950 dark:border-yellow-400'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:text-white'
                 }`}
               >
                 Anno Intero
@@ -129,8 +129,8 @@ export default function IcsExportModal({
                 onClick={() => setRangeType('custom')}
                 className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
                   rangeType === 'custom'
-                    ? 'bg-yellow-400 text-slate-950 border-yellow-400 shadow'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm dark:bg-yellow-400 dark:text-slate-950 dark:border-yellow-400'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:text-white'
                 }`}
               >
                 Personalizzato
@@ -139,23 +139,23 @@ export default function IcsExportModal({
           </div>
 
           {rangeType === 'custom' && (
-            <div className="grid grid-cols-2 gap-3 bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+            <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
               <div>
-                <label className="text-[10px] text-slate-400 block mb-1">Da</label>
+                <label className="text-[10px] text-slate-500 dark:text-slate-400 block mb-1">Da</label>
                 <input
                   type="date"
                   value={customStart}
                   onChange={(e) => setCustomStart(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
                 />
               </div>
               <div>
-                <label className="text-[10px] text-slate-400 block mb-1">A</label>
+                <label className="text-[10px] text-slate-500 dark:text-slate-400 block mb-1">A</label>
                 <input
                   type="date"
                   value={customEnd}
                   onChange={(e) => setCustomEnd(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
                 />
               </div>
             </div>
@@ -182,13 +182,13 @@ export default function IcsExportModal({
             {/* Action 2: CSV */}
             <button
               onClick={handleDownloadCSV}
-              className="w-full p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-between border border-slate-700 transition-all active:scale-98"
+              className="w-full p-3 rounded-2xl bg-white hover:bg-emerald-50/50 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-between border border-slate-200 dark:border-slate-700 transition-all active:scale-98 shadow-sm"
             >
               <div className="flex items-center gap-2.5">
-                <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <div className="text-left">
                   <div className="font-bold">Esporta Foglio Excel / CSV</div>
-                  <div className="text-[10px] text-slate-400">Tabella completa con ore, note e modificatori</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">Tabella completa con ore, note e modificatori</div>
                 </div>
               </div>
               <Download className="w-4 h-4" />
@@ -197,13 +197,13 @@ export default function IcsExportModal({
             {/* Action 3: Print / PDF */}
             <button
               onClick={handlePrint}
-              className="w-full p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-between border border-slate-700 transition-all active:scale-98"
+              className="w-full p-3 rounded-2xl bg-white hover:bg-emerald-50/50 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-between border border-slate-200 dark:border-slate-700 transition-all active:scale-98 shadow-sm"
             >
               <div className="flex items-center gap-2.5">
-                <Printer className="w-4 h-4 text-yellow-400" />
+                <Printer className="w-4 h-4 text-emerald-600 dark:text-yellow-400" />
                 <div className="text-left">
                   <div className="font-bold">Stampa / Salva in PDF</div>
-                  <div className="text-[10px] text-slate-400">Layout cartaceo o PDF pronto da stampare</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">Layout cartaceo o PDF pronto da stampare</div>
                 </div>
               </div>
             </button>
@@ -212,10 +212,10 @@ export default function IcsExportModal({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 bg-slate-950/90 border-t border-slate-800 flex justify-end">
+        <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950/90 border-t border-slate-200 dark:border-slate-800 flex justify-end">
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white transition-colors"
+            className="px-5 py-2 rounded-xl text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white transition-colors"
           >
             Chiudi
           </button>

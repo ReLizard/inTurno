@@ -36,7 +36,7 @@ export default function Navbar({
   const currentYear = currentDate.getFullYear();
 
   return (
-    <header className="sticky top-0 z-30 bg-slate-900/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-800 text-slate-100 shadow-lg">
+    <header className="sticky top-0 z-30 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-emerald-900/10 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-sm transition-colors">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
         
         {/* Brand & Logo */}
@@ -45,14 +45,14 @@ export default function Navbar({
             <img 
               src="/icon-192.png" 
               alt="inTurno Icon" 
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md border border-slate-700/60 object-contain hover:scale-105 transition-transform"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md border border-emerald-900/10 dark:border-slate-700/60 object-contain hover:scale-105 transition-transform"
             />
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-white">
-                  in<span className="text-yellow-400">T</span>urno
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                  in<span className="text-emerald-600 dark:text-yellow-400">T</span>urno
                 </span>
-                <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-widest bg-yellow-400/10 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-400/20">
+                <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-widest bg-emerald-600/10 text-emerald-700 border border-emerald-600/20 dark:bg-yellow-400/10 dark:text-yellow-400 dark:border-yellow-400/20 px-1.5 py-0.5 rounded">
                   PWA
                 </span>
               </div>
@@ -64,11 +64,11 @@ export default function Navbar({
         </div>
 
         {/* Date Navigator (Month / Year / Today) */}
-        <div className="flex items-center bg-slate-800/80 dark:bg-slate-900/80 rounded-2xl p-1 border border-slate-700/60 shadow-inner">
+        <div className="flex items-center bg-white dark:bg-slate-900/80 rounded-2xl p-1 border border-emerald-900/10 dark:border-slate-700/60 shadow-sm">
           <button
             onClick={onPrevMonth}
             title="Mese precedente"
-            className="p-1.5 sm:p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700/70 active:scale-95 transition-all"
+            className="p-1.5 sm:p-2 rounded-xl text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/70 active:scale-95 transition-all"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -77,11 +77,11 @@ export default function Navbar({
             onClick={onToday}
             className="px-3 py-1 sm:px-4 text-center group min-w-[130px] sm:min-w-[160px]"
           >
-            <div className="text-sm sm:text-base font-bold text-white group-hover:text-yellow-400 transition-colors flex items-center justify-center gap-1.5">
+            <div className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-yellow-400 transition-colors flex items-center justify-center gap-1.5">
               <span>{currentMonthName}</span>
-              <span className="text-yellow-400 font-extrabold">{currentYear}</span>
+              <span className="text-emerald-600 dark:text-yellow-400 font-extrabold">{currentYear}</span>
             </div>
-            <div className="text-[10px] text-slate-400 group-hover:text-slate-300 font-medium">
+            <div className="text-[10px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 font-medium">
               Tocca per Oggi
             </div>
           </button>
@@ -89,7 +89,7 @@ export default function Navbar({
           <button
             onClick={onNextMonth}
             title="Mese successivo"
-            className="p-1.5 sm:p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700/70 active:scale-95 transition-all"
+            className="p-1.5 sm:p-2 rounded-xl text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/70 active:scale-95 transition-all"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -98,13 +98,13 @@ export default function Navbar({
         {/* Navigation Tabs & Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* View switcher */}
-          <div className="flex bg-slate-800/90 rounded-xl p-0.5 border border-slate-700/60">
+          <div className="flex bg-slate-100/90 dark:bg-slate-800/90 rounded-xl p-0.5 border border-emerald-900/10 dark:border-slate-700/60 shadow-inner">
             <button
               onClick={() => setActiveTab('calendar')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                 activeTab === 'calendar'
-                  ? 'bg-yellow-400 text-slate-950 shadow-md font-bold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                  ? 'bg-emerald-600 text-white dark:bg-yellow-400 dark:text-slate-950 shadow-md font-bold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/50'
               }`}
             >
               <CalendarIcon className="w-4 h-4" />
@@ -114,8 +114,8 @@ export default function Navbar({
               onClick={() => setActiveTab('stats')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                 activeTab === 'stats'
-                  ? 'bg-yellow-400 text-slate-950 shadow-md font-bold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                  ? 'bg-emerald-600 text-white dark:bg-yellow-400 dark:text-slate-950 shadow-md font-bold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/50'
               }`}
             >
               <BarChart3 className="w-4 h-4" />
@@ -127,7 +127,7 @@ export default function Navbar({
           {activeTab === 'calendar' && (
             <button
               onClick={onOpenShiftPicker}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-yellow-400/20 active:scale-95 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white dark:bg-yellow-400 dark:hover:bg-yellow-300 dark:text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-emerald-700/20 dark:shadow-yellow-400/20 active:scale-95 transition-all"
               title="Scegli un turno da assegnare con un tocco"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
@@ -140,7 +140,7 @@ export default function Navbar({
           <button
             onClick={onOpenWeekPattern}
             title="Pianificazione Rapida Alternata"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 hover:text-yellow-300 border border-slate-700 transition-all flex items-center gap-1 text-xs font-semibold shadow-sm"
+            className="p-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 border border-emerald-900/10 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-yellow-400 dark:hover:text-yellow-300 dark:border-slate-700 transition-all flex items-center gap-1 text-xs font-semibold shadow-sm"
           >
             <Sparkles className="w-4 h-4" />
             <span className="hidden md:inline">Schema Rapido</span>
@@ -150,7 +150,7 @@ export default function Navbar({
           <button
             onClick={onOpenExport}
             title="Esporta Calendario (.ics, CSV, Stampa)"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all shadow-sm"
+            className="p-2 rounded-xl bg-white hover:bg-emerald-50 text-slate-600 hover:text-slate-900 border border-emerald-900/10 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:hover:text-white dark:border-slate-700 transition-all shadow-sm"
           >
             <Download className="w-4 h-4" />
           </button>
@@ -159,7 +159,7 @@ export default function Navbar({
           <button
             onClick={onOpenSettings}
             title="Impostazioni e Personalizzazione Turni"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all shadow-sm"
+            className="p-2 rounded-xl bg-white hover:bg-emerald-50 text-slate-600 hover:text-slate-900 border border-emerald-900/10 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:hover:text-white dark:border-slate-700 transition-all shadow-sm"
           >
             <Settings className="w-4 h-4" />
           </button>
@@ -168,9 +168,9 @@ export default function Navbar({
           <button
             onClick={onToggleTheme}
             title={theme === 'dark' ? 'Passa al tema Chiaro' : 'Passa al tema Scuro'}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-yellow-400 border border-slate-700 transition-all shadow-sm"
+            className="p-2 rounded-xl bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 border border-emerald-900/10 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:hover:text-yellow-400 dark:border-slate-700 transition-all shadow-sm"
           >
-            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-emerald-700" />}
           </button>
         </div>
 
