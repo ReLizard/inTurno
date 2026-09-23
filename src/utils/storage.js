@@ -9,7 +9,7 @@ const STORAGE_KEYS = {
 };
 
 export const DEFAULT_SETTINGS = {
-  theme: 'dark', // 'dark' | 'light'
+  theme: 'light', // 'light' | 'dark'
   startOfWeek: 1, // 1 = Lunedì, 0 = Domenica
   countMode: 'days', // 'days' | 'hours'
   showWeekendHighlight: true,
