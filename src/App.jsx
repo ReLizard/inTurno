@@ -354,6 +354,7 @@ export default function App() {
         currentDate={currentDate}
         schedule={schedule}
         shifts={shifts}
+        theme={settings.theme}
       />
 
     </div>
