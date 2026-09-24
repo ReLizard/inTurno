@@ -1,16 +1,16 @@
-const CACHE_NAME = 'inturno-v1';
+const CACHE_NAME = 'inturno-v1.01';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/favicon.png',
-  '/apple-touch-icon.png',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/icon-maskable-192.png',
-  '/icon-maskable-512.png',
-  '/logo-card.png',
-  '/logo-inner.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './favicon.png',
+  './apple-touch-icon.png',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-192.png',
+  './icon-maskable-512.png',
+  './logo-card.png',
+  './logo-inner.png'
 ];
 
 self.addEventListener('install', (event) => {

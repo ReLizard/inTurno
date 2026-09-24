@@ -82,7 +82,7 @@ export default function WeekPatternModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
       <div 
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh] min-w-0"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -109,14 +109,14 @@ export default function WeekPatternModal({
         </div>
 
         {/* Body */}
-        <div className="p-5 overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-slate-400 dark:scrollbar-thumb-slate-700">
+        <div className="p-3.5 sm:p-5 overflow-y-auto overflow-x-hidden space-y-4 min-w-0 scrollbar-thin scrollbar-thumb-slate-400 dark:scrollbar-thumb-slate-700">
           
           {/* Pattern Type Choice */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
               Tipo di Schema
             </label>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => setPatternType('alternating')}
@@ -157,16 +157,16 @@ export default function WeekPatternModal({
 
           {/* Shift Selectors */}
           {patternType === 'alternating' ? (
-            <div className="space-y-3 bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
+            <div className="space-y-3 bg-slate-50 dark:bg-slate-950/60 p-3 sm:p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 min-w-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="min-w-0">
                   <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                     Settimana A (Dispari)
                   </label>
                   <select
                     value={weekAShiftCode}
                     onChange={(e) => setWeekAShiftCode(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                    className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                   >
                     {shifts.map((s) => (
                       <option key={s.id} value={s.code}>
@@ -176,14 +176,14 @@ export default function WeekPatternModal({
                   </select>
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                     Settimana B (Pari)
                   </label>
                   <select
                     value={weekBShiftCode}
                     onChange={(e) => setWeekBShiftCode(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                    className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                   >
                     {shifts.map((s) => (
                       <option key={s.id} value={s.code}>
@@ -195,14 +195,14 @@ export default function WeekPatternModal({
               </div>
             </div>
           ) : (
-            <div className="bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div className="bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 min-w-0">
               <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                 Turno da Applicare
               </label>
               <select
                 value={uniformShiftCode}
                 onChange={(e) => setUniformShiftCode(e.target.value)}
-                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
               >
                 {shifts.map((s) => (
                   <option key={s.id} value={s.code}>

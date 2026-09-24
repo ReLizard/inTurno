@@ -107,7 +107,7 @@ export default function SettingsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
       <div 
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] min-w-0"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -168,14 +168,14 @@ export default function SettingsModal({
         </div>
 
         {/* Content Body */}
-        <div className="p-5 overflow-y-auto flex-1 space-y-4 scrollbar-thin scrollbar-thumb-slate-400 dark:scrollbar-thumb-slate-700">
+        <div className="p-3.5 sm:p-5 overflow-y-auto overflow-x-hidden flex-1 space-y-4 min-w-0 scrollbar-thin scrollbar-thumb-slate-400 dark:scrollbar-thumb-slate-700">
           
           {/* TAB 1: SHIFTS */}
           {activeTab === 'shifts' && (
-            <div>
+            <div className="min-w-0">
               {editingShift ? (
                 /* Edit/Create Form */
-                <form onSubmit={handleSaveShift} className="space-y-4 bg-slate-50 dark:bg-slate-950/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <form onSubmit={handleSaveShift} className="space-y-4 bg-slate-50 dark:bg-slate-950/60 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 min-w-0">
                   <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
                     <span className="text-sm font-black text-slate-900 dark:text-white">
                       {isNewShift ? 'Nuovo Tipo di Turno' : `Modifica Turno: ${editingShift.code}`}
@@ -183,14 +183,14 @@ export default function SettingsModal({
                     <button
                       type="button"
                       onClick={() => setEditingShift(null)}
-                      className="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                      className="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white font-medium"
                     >
                       Annulla
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="min-w-0">
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Sigla Breve (1-3 lettere)
                       </label>
@@ -200,11 +200,11 @@ export default function SettingsModal({
                         placeholder="Es. M1"
                         value={editingShift.code}
                         onChange={(e) => setEditingShift({ ...editingShift, code: e.target.value })}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-extrabold uppercase focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                        className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-extrabold uppercase focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                         required
                       />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Nome Completo
                       </label>
@@ -213,21 +213,21 @@ export default function SettingsModal({
                         placeholder="Es. Mattina 1"
                         value={editingShift.name}
                         onChange={(e) => setEditingShift({ ...editingShift, name: e.target.value })}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                        className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="min-w-0">
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Categoria
                       </label>
                       <select
                         value={editingShift.category}
                         onChange={(e) => setEditingShift({ ...editingShift, category: e.target.value })}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                        className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                       >
                         {Object.entries(CATEGORY_LABELS).map(([catKey, catLabel]) => (
                           <option key={catKey} value={catKey}>{catLabel}</option>
@@ -235,7 +235,7 @@ export default function SettingsModal({
                       </select>
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Colore Badge
                       </label>
@@ -244,15 +244,15 @@ export default function SettingsModal({
                           type="color"
                           value={editingShift.color}
                           onChange={(e) => setEditingShift({ ...editingShift, color: e.target.value })}
-                          className="w-10 h-10 rounded-xl cursor-pointer bg-transparent border-0 p-0"
+                          className="w-10 h-10 rounded-xl cursor-pointer bg-transparent border-0 p-0 shrink-0"
                         />
                         <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{editingShift.color}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="min-w-0">
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Orario Inizio Standard
                       </label>
@@ -260,10 +260,10 @@ export default function SettingsModal({
                         type="time"
                         value={editingShift.startTime || ''}
                         onChange={(e) => setEditingShift({ ...editingShift, startTime: e.target.value })}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                        className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                       />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Orario Fine Standard
                       </label>
@@ -271,7 +271,7 @@ export default function SettingsModal({
                         type="time"
                         value={editingShift.endTime || ''}
                         onChange={(e) => setEditingShift({ ...editingShift, endTime: e.target.value })}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                        className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                       />
                     </div>
                   </div>
@@ -464,7 +464,10 @@ export default function SettingsModal({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950/90 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+        <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
+            inTurno v1.01
+          </span>
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white transition-colors"

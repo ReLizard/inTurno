@@ -1,4 +1,5 @@
 import React from 'react';
+import appLogo from '../assets/icon.png';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -43,7 +44,8 @@ export default function Navbar({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 cursor-pointer select-none" onClick={onToday}>
             <img 
-              src="/icon-192.png" 
+              src={appLogo}
+              onError={(e) => { e.currentTarget.src = `${import.meta.env.BASE_URL}icon-192.png`; }}
               alt="inTurno Icon" 
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md border border-emerald-900/10 dark:border-slate-700/60 object-contain hover:scale-105 transition-transform"
             />
@@ -53,7 +55,7 @@ export default function Navbar({
                   in<span className="text-emerald-600 dark:text-yellow-400">T</span>urno
                 </span>
                 <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-widest bg-emerald-600/10 text-emerald-700 border border-emerald-600/20 dark:bg-yellow-400/10 dark:text-yellow-400 dark:border-yellow-400/20 px-1.5 py-0.5 rounded">
-                  PWA
+                  v1.01
                 </span>
               </div>
               <span className="text-[10px] text-slate-400 tracking-wider font-semibold -mt-1 hidden sm:block">
