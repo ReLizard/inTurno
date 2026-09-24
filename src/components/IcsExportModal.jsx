@@ -59,7 +59,7 @@ export default function IcsExportModal({
   const monthEnd = endOfMonth(currentDate);
 
   // Stati intervallo
-  const [rangeType, setRangeType] = useState('thisWeek'); // 'thisWeek' | 'nextWeek' | 'month' | 'custom'
+  const [rangeType, setRangeType] = useState('thisWeek'); // 'thisWeek' | 'nextWeek' | 'month' | 'all' | 'custom'
   const [customStart, setCustomStart] = useState(format(thisWeekStart, 'yyyy-MM-dd'));
   const [customEnd, setCustomEnd] = useState(format(thisWeekEnd, 'yyyy-MM-dd'));
 
@@ -67,7 +67,6 @@ export default function IcsExportModal({
   const [activeInfo, setActiveInfo] = useState(null); // 'calendar' | 'whatsapp' | 'photo' | null
   const [showOtherExports, setShowOtherExports] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
-  const [showCalendarGuideModal, setShowCalendarGuideModal] = useState(false);
 
   const isSecure = typeof window !== 'undefined' && window.isSecureContext;
 
@@ -79,9 +78,15 @@ export default function IcsExportModal({
 
   // Risoluzione date correnti dell'intervallo scelto
   const getDates = () => {
-    if (rangeType === 'thisWeek') return { start: thisWeekStart, end: thisWeekEnd };
-    if (rangeType === 'nextWeek') return { start: nextWeekStart, end: nextWeekEnd };
-    if (rangeType === 'month') return { start: monthStart, end: monthEnd };
+    if (rangeType === 'thisWeek') return { start: thisWeekStart, end: thisWeekEnd, isAll: false };
+    if (rangeType === 'nextWeek') return { start: nextWeekStart, end: nextWeekEnd, isAll: false };
+    if (rangeType === 'month') return { start: monthStart, end: monthEnd, isAll: false };
+    if (rangeType === 'all') {
+      const dates = Object.keys(schedule || {}).filter(d => schedule[d]?.shiftCode).sort();
+      const start = dates.length > 0 ? parseISO(dates[0]) : thisWeekStart;
+      const end = dates.length > 0 ? parseISO(dates[dates.length - 1]) : thisWeekEnd;
+      return { start, end, isAll: true };
+    }
     
     let s = customStart ? parseISO(customStart) : thisWeekStart;
     let e = customEnd ? parseISO(customEnd) : thisWeekEnd;
@@ -90,12 +95,12 @@ export default function IcsExportModal({
       s = e;
       e = tmp;
     }
-    return { start: s, end: e };
+    return { start: s, end: e, isAll: false };
   };
 
-  const { start: effectiveStart, end: effectiveEnd } = getDates();
-  const startStr = format(effectiveStart, 'yyyy-MM-dd');
-  const endStr = format(effectiveEnd, 'yyyy-MM-dd');
+  const { start: effectiveStart, end: effectiveEnd, isAll } = getDates();
+  const startStr = isAll ? null : format(effectiveStart, 'yyyy-MM-dd');
+  const endStr = isAll ? null : format(effectiveEnd, 'yyyy-MM-dd');
 
   // Mostra notifica toast temporanea
   const showToast = (msg) => {
@@ -105,17 +110,18 @@ export default function IcsExportModal({
     }, 4500);
   };
 
-  // 1. Azione: Apri con App Calendario del Telefono
+  // 1. Azione: Invia al Calendario (apre con app nativa o scarica direttamente per scelta immediata app)
   const handleOpenInCalendar = async () => {
     const res = await openInCalendarApp(schedule, shifts, startStr, endStr);
-    if (res && res.method === 'download') {
-      setShowCalendarGuideModal(true);
-    } else if (res && res.method === 'share-sheet') {
-      showToast('Seleziona Google Calendar o l\'app calendario sul tuo dispositivo.');
+    if (res && res.aborted) {
+      return;
+    }
+    if (res && res.method === 'share-sheet') {
+      showToast('Seleziona Google Calendar o la tua app calendario preferita.');
     } else if (res && res.method === 'ios-prompt') {
       showToast('Tocca "Aggiungi tutti" per salvare gli eventi nel Calendario Apple.');
-    } else if (res && res.method === 'unsupported') {
-      setShowCalendarGuideModal(true);
+    } else if (res && res.method === 'download') {
+      showToast('File calendario scaricato! Tocca "Apri" nella notifica per aggiungerlo a Google Calendar.');
     }
   };
 
@@ -157,8 +163,9 @@ export default function IcsExportModal({
   // Condividi foto tramite Share Sheet nativo del telefono (WhatsApp, Telegram, Salva, ecc.)
   const handleSharePhoto = async () => {
     if (!photoBlob) return;
-    const file = new File([photoBlob], `inTurno_${startStr}_${endStr}.png`, { type: 'image/png' });
-    const res = await shareOrDownloadFile(file, `inTurno_${startStr}_${endStr}.png`);
+    const photoFileName = startStr && endStr ? `inTurno_${startStr}_${endStr}.png` : 'inTurno_turni_completo.png';
+    const file = new File([photoBlob], photoFileName, { type: 'image/png' });
+    const res = await shareOrDownloadFile(file, photoFileName);
     if (res && res.method === 'download') {
       showToast('Immagine scaricata sul dispositivo!');
     }
@@ -167,9 +174,10 @@ export default function IcsExportModal({
   // Salva direttamente la foto nella galleria/cartella download
   const handleDownloadPhoto = () => {
     if (!photoPreview) return;
+    const photoFileName = startStr && endStr ? `inTurno_${startStr}_${endStr}.png` : 'inTurno_turni_completo.png';
     const a = document.createElement('a');
     a.href = photoPreview;
-    a.download = `inTurno_${startStr}_${endStr}.png`;
+    a.download = photoFileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -251,11 +259,11 @@ export default function IcsExportModal({
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
                 Periodo da Condividere
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1.5">
                 <button
                   type="button"
                   onClick={() => setRangeType('thisWeek')}
-                  className={`py-2 px-2.5 rounded-xl text-xs font-bold border transition-all text-center ${
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center ${
                     rangeType === 'thisWeek'
                       ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm dark:bg-yellow-400 dark:text-slate-950 dark:border-yellow-400'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:text-white'
@@ -266,7 +274,7 @@ export default function IcsExportModal({
                 <button
                   type="button"
                   onClick={() => setRangeType('nextWeek')}
-                  className={`py-2 px-2.5 rounded-xl text-xs font-bold border transition-all text-center ${
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center ${
                     rangeType === 'nextWeek'
                       ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm dark:bg-yellow-400 dark:text-slate-950 dark:border-yellow-400'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:text-white'
@@ -277,7 +285,7 @@ export default function IcsExportModal({
                 <button
                   type="button"
                   onClick={() => setRangeType('month')}
-                  className={`py-2 px-2.5 rounded-xl text-xs font-bold border transition-all text-center ${
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center ${
                     rangeType === 'month'
                       ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm dark:bg-yellow-400 dark:text-slate-950 dark:border-yellow-400'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:text-white'
@@ -287,8 +295,19 @@ export default function IcsExportModal({
                 </button>
                 <button
                   type="button"
+                  onClick={() => setRangeType('all')}
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center ${
+                    rangeType === 'all'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm dark:bg-yellow-400 dark:text-slate-950 dark:border-yellow-400'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:text-white'
+                  }`}
+                >
+                  Tutto il Calendario
+                </button>
+                <button
+                  type="button"
                   onClick={() => setRangeType('custom')}
-                  className={`py-2 px-2.5 rounded-xl text-xs font-bold border transition-all text-center ${
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center col-span-2 sm:col-span-1 ${
                     rangeType === 'custom'
                       ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm dark:bg-yellow-400 dark:text-slate-950 dark:border-yellow-400'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:text-white'
@@ -370,13 +389,13 @@ export default function IcsExportModal({
                       <Smartphone className="w-3.5 h-3.5" />
                       <span>Guida dettagliata:</span>
                     </div>
-                    <p>• <strong>Su Android:</strong> Il tasto <em>"Apri con App Calendario"</em> apre il selettore del telefono: tocca <strong>Google Calendar</strong> o Calendario Samsung e conferma con <em>"Aggiungi tutti"</em>.</p>
+                    <p>• <strong>Su Android:</strong> Premendo <em>"Invia al Calendario"</em> il file viene aperto direttamente con <strong>Google Calendar</strong> (o Calendario Samsung): scegli il tuo calendario e tocca <em>"Aggiungi tutti"</em>.</p>
                     <p>• <strong>Su iPhone:</strong> Si apre direttamente l'app <strong>Calendario Apple</strong> con il pulsante per aggiungere subito l'intero periodo.</p>
                     <p>• <strong>Per inviarlo a familiari:</strong> Se preferisci, puoi usare il tasto <em>"Scarica file .ics"</em> e inviare il file allegato in una qualsiasi chat WhatsApp.</p>
                   </div>
                 )}
 
-                {/* RIGA 3: Tasti azione (Apri con Calendario + Scarica file .ics) */}
+                {/* RIGA 3: Tasti azione (Invia al Calendario + Scarica file .ics) */}
                 <div className="flex flex-col sm:flex-row gap-2 pt-1">
                   <button
                     type="button"
@@ -384,7 +403,7 @@ export default function IcsExportModal({
                     className="flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all"
                   >
                     <Smartphone className="w-4 h-4" />
-                    <span>Apri con App Calendario</span>
+                    <span>Invia al Calendario</span>
                   </button>
                   <button
                     type="button"
@@ -395,6 +414,19 @@ export default function IcsExportModal({
                     <Download className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span>Scarica file .ics</span>
                   </button>
+                </div>
+
+                {/* Link diretto Google Calendar Web */}
+                <div className="pt-0.5 text-center">
+                  <a
+                    href="https://calendar.google.com/calendar/u/0/r/settings/export"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                  >
+                    <span>Oppure importa direttamente su Google Calendar Web</span>
+                    <span aria-hidden="true">&rarr;</span>
+                  </a>
                 </div>
               </div>
 
@@ -641,61 +673,6 @@ export default function IcsExportModal({
                 <span>Condividi Foto</span>
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODALE GUIDA CALENDARIO: SI APRE QUANDO IL FILE VIENE SCARICATO SU SMARTPHONE/PC */}
-      {showCalendarGuideModal && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-          <div 
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center">
-                  <Calendar className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-white">
-                    File Calendario Pronto!
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Come aprirlo in 1 tocco nel tuo calendario
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowCalendarGuideModal(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-blue-50/70 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/60 text-xs text-slate-700 dark:text-slate-200 space-y-2.5 leading-relaxed">
-              <p className="font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
-                <Smartphone className="w-4 h-4" />
-                <span>Dal tuo smartphone (Android o iPhone):</span>
-              </p>
-              <div className="space-y-1.5 text-[12px]">
-                <p>1. <strong>Abbassa la tendina delle notifiche</strong> in alto sullo schermo del telefono.</p>
-                <p>2. <strong>Tocca la notifica</strong> del file <em>inTurno_...ics</em> appena scaricato.</p>
-                <p>3. Il telefono ti chiederà con quale app aprirlo: scegli <strong>Google Calendar</strong> (o <em>Calendario Samsung</em> o <em>Apple</em>) e conferma con <strong>"Aggiungi tutti"</strong>.</p>
-              </div>
-              <div className="pt-2 border-t border-blue-200/60 dark:border-blue-900/60 text-[11px] text-blue-800 dark:text-blue-300">
-                💡 <strong>Alternativa rapida:</strong> Invia il file scaricato in una chat WhatsApp a te stesso o a un familiare: toccando il file dentro la chat si apre direttamente l'app Calendario!
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowCalendarGuideModal(false)}
-              className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/20 active:scale-95 transition-all"
-            >
-              Ho capito, perfetto!
-            </button>
           </div>
         </div>
       )}

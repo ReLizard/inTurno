@@ -156,6 +156,6 @@ export function generateICS(schedule, shifts, startDateStr, endDateStr) {
 
 export function createICSFile(schedule, shifts, startDateStr, endDateStr, calendarName = 'inTurno - I miei Turni', mimeType = 'text/calendar') {
   const icsContent = buildICSContent(schedule, shifts, startDateStr, endDateStr, calendarName);
-  const fileName = `inTurno_calendario_${startDateStr || 'periodo'}.ics`;
+  const fileName = startDateStr ? `inTurno_calendario_${startDateStr}.ics` : 'inTurno_calendario_completo.ics';
   return new File([icsContent], fileName, { type: mimeType });
 }

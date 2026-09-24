@@ -93,32 +93,17 @@ export function openWhatsApp(text) {
 // Apertura diretta nel Calendario del Telefono (Android/iOS)
 export async function openInCalendarApp(schedule, shifts, startStr, endStr) {
   const calendarName = 'inTurno - I miei Turni';
-  const fileName = `inTurno_calendario_${startStr || 'periodo'}.ics`;
+  const fileName = startStr ? `inTurno_calendario_${startStr}.ics` : 'inTurno_calendario_completo.ics';
 
   // 1. Prova Web Share API per prendere il file direttamente in memoria e chiedere con quale app aprirlo (Android / iPhone)
   if (typeof navigator !== 'undefined' && navigator.share) {
-    let file = createICSFile(schedule, shifts, startStr, endStr, calendarName, 'text/calendar');
+    const file = createICSFile(schedule, shifts, startStr, endStr, calendarName, 'text/calendar');
     let canShare = false;
 
     try {
       canShare = Boolean(navigator.canShare && navigator.canShare({ files: [file] }));
     } catch (e) {
       canShare = false;
-    }
-
-    // Se il browser (es. Chrome su Android) non ha text/calendar nella safelist di canShare,
-    // creiamo il file come text/plain mantenendo il nome del file .ics:
-    // il sistema Android mappa comunque l'estensione .ics sull'app Calendario / Google Calendar
-    if (!canShare) {
-      try {
-        const plainFile = createICSFile(schedule, shifts, startStr, endStr, calendarName, 'text/plain');
-        if (navigator.canShare && navigator.canShare({ files: [plainFile] })) {
-          file = plainFile;
-          canShare = true;
-        }
-      } catch (e) {
-        canShare = false;
-      }
     }
 
     if (canShare) {
@@ -130,7 +115,7 @@ export async function openInCalendarApp(schedule, shifts, startStr, endStr) {
         return { success: true, method: 'share-sheet' };
       } catch (err) {
         if (err.name === 'AbortError') {
-          // L'utente ha annullato la scelta, non scarichiamo nulla
+          // L'utente ha annullato la scelta
           return { success: false, aborted: true };
         }
         console.warn('Share calendar failed, continuing fallback', err);
@@ -138,7 +123,7 @@ export async function openInCalendarApp(schedule, shifts, startStr, endStr) {
     }
   }
 
-  // 2. Su iOS Safari: se Web Share con file non è disponibile, navigare al blob apre direttamente l'app Calendario Apple
+  // 2. Su iOS Safari: navigare direttamente al blob apre subito l'app Calendario Apple in memoria
   const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if (isIOS) {
     const icsFile = createICSFile(schedule, shifts, startStr, endStr, calendarName, 'text/calendar');
@@ -148,9 +133,20 @@ export async function openInCalendarApp(schedule, shifts, startStr, endStr) {
     return { success: true, method: 'ios-prompt' };
   }
 
-  // 3. Se Web Share con file non è supportato (es. browser desktop):
-  // Non scarichiamo a sorpresa per non duplicare il download, ma restituiamo method: 'unsupported'
-  return { success: false, method: 'unsupported' };
+  // 3. Fallback per Android (Chrome / Samsung Internet) e Desktop:
+  // Scarica direttamente il file .ics senza popup intermedi.
+  // Su smartphone Android questo genera la notifica/barra nativa con pulsante "Apri",
+  // che aprendola avvia la scelta dell'app (Google Calendar / Calendario).
+  const icsFile = createICSFile(schedule, shifts, startStr, endStr, calendarName, 'text/calendar');
+  const url = URL.createObjectURL(icsFile);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+  return { success: true, method: 'download' };
 }
 
 // Download esplicito del solo file .ics
@@ -160,7 +156,7 @@ export function downloadICSFile(schedule, shifts, startStr, endStr) {
   const url = URL.createObjectURL(icsFile);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `inTurno_${startStr}_${endStr}.ics`;
+  a.download = startStr && endStr ? `inTurno_${startStr}_${endStr}.ics` : 'inTurno_calendario_completo.ics';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
