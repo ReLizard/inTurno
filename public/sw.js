@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inturno-v1.01';
+const CACHE_NAME = 'inturno-v1.02';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

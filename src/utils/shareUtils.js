@@ -93,44 +93,64 @@ export function openWhatsApp(text) {
 // Apertura diretta nel Calendario del Telefono (Android/iOS)
 export async function openInCalendarApp(schedule, shifts, startStr, endStr) {
   const calendarName = 'inTurno - I miei Turni';
-  const icsFile = createICSFile(schedule, shifts, startStr, endStr, calendarName);
-  
-  // 1. Prova Web Share API con file (apre su Android e iPhone il selettore app con Calendario / Google Calendar)
-  if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [icsFile] })) {
+  const fileName = `inTurno_calendario_${startStr || 'periodo'}.ics`;
+
+  // 1. Prova Web Share API per prendere il file direttamente in memoria e chiedere con quale app aprirlo (Android / iPhone)
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    let file = createICSFile(schedule, shifts, startStr, endStr, calendarName, 'text/calendar');
+    let canShare = false;
+
     try {
-      await navigator.share({
-        title: 'inTurno - I Miei Turni',
-        text: 'Aggiungi al Calendario',
-        files: [icsFile]
-      });
-      return { success: true, method: 'share-sheet' };
-    } catch (err) {
-      if (err.name === 'AbortError') {
-        return { success: false, aborted: true };
+      canShare = Boolean(navigator.canShare && navigator.canShare({ files: [file] }));
+    } catch (e) {
+      canShare = false;
+    }
+
+    // Se il browser (es. Chrome su Android) non ha text/calendar nella safelist di canShare,
+    // creiamo il file come text/plain mantenendo il nome del file .ics:
+    // il sistema Android mappa comunque l'estensione .ics sull'app Calendario / Google Calendar
+    if (!canShare) {
+      try {
+        const plainFile = createICSFile(schedule, shifts, startStr, endStr, calendarName, 'text/plain');
+        if (navigator.canShare && navigator.canShare({ files: [plainFile] })) {
+          file = plainFile;
+          canShare = true;
+        }
+      } catch (e) {
+        canShare = false;
       }
-      console.warn('Share calendar failed, continuing to direct open/download', err);
+    }
+
+    if (canShare) {
+      try {
+        await navigator.share({
+          title: 'inTurno - I Miei Turni',
+          files: [file]
+        });
+        return { success: true, method: 'share-sheet' };
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          // L'utente ha annullato la scelta, non scarichiamo nulla
+          return { success: false, aborted: true };
+        }
+        console.warn('Share calendar failed, continuing fallback', err);
+      }
     }
   }
 
-  // 2. Su iOS Safari: navigare direttamente al blob/data URI fa apparire il popup nativo "Aggiungi al Calendario Apple"
+  // 2. Su iOS Safari: se Web Share con file non è disponibile, navigare al blob apre direttamente l'app Calendario Apple
   const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if (isIOS) {
+    const icsFile = createICSFile(schedule, shifts, startStr, endStr, calendarName, 'text/calendar');
     const url = URL.createObjectURL(icsFile);
     window.location.href = url;
     setTimeout(() => URL.revokeObjectURL(url), 4000);
     return { success: true, method: 'ios-prompt' };
   }
 
-  // 3. Fallback: scarica direttamente il file .ics
-  const url = URL.createObjectURL(icsFile);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `inTurno_${startStr}_${endStr}.ics`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-  return { success: true, method: 'download' };
+  // 3. Se Web Share con file non è supportato (es. browser desktop):
+  // Non scarichiamo a sorpresa per non duplicare il download, ma restituiamo method: 'unsupported'
+  return { success: false, method: 'unsupported' };
 }
 
 // Download esplicito del solo file .ics

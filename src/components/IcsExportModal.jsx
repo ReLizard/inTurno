@@ -114,6 +114,8 @@ export default function IcsExportModal({
       showToast('Seleziona Google Calendar o l\'app calendario sul tuo dispositivo.');
     } else if (res && res.method === 'ios-prompt') {
       showToast('Tocca "Aggiungi tutti" per salvare gli eventi nel Calendario Apple.');
+    } else if (res && res.method === 'unsupported') {
+      setShowCalendarGuideModal(true);
     }
   };
 

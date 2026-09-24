@@ -55,7 +55,7 @@ export default function Navbar({
                   in<span className="text-emerald-600 dark:text-yellow-400">T</span>urno
                 </span>
                 <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-widest bg-emerald-600/10 text-emerald-700 border border-emerald-600/20 dark:bg-yellow-400/10 dark:text-yellow-400 dark:border-yellow-400/20 px-1.5 py-0.5 rounded">
-                  v1.01
+                  v1.02
                 </span>
               </div>
               <span className="text-[10px] text-slate-400 tracking-wider font-semibold -mt-1 hidden sm:block">

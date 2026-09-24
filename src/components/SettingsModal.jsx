@@ -466,7 +466,7 @@ export default function SettingsModal({
         {/* Footer */}
         <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
-            inTurno v1.01
+            inTurno v1.02
           </span>
           <button
             onClick={onClose}
