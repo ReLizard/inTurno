@@ -107,17 +107,17 @@ export default function SettingsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
       <div 
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] min-w-0"
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-[calc(100vw-1.5rem)] sm:max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] min-w-0"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-emerald-100 dark:border-slate-800 bg-emerald-50/50 dark:bg-slate-900/90 flex items-center justify-between">
+        <div className="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-emerald-100 dark:border-slate-800 bg-emerald-50/50 dark:bg-slate-900/90 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-emerald-600/10 text-emerald-700 border border-emerald-600/20 dark:bg-yellow-400/10 dark:text-yellow-400 dark:border-yellow-400/20">
               <Sliders className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white">
+              <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
                 Impostazioni & Turni
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -134,10 +134,10 @@ export default function SettingsModal({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 px-5 pt-2 bg-slate-50 dark:bg-slate-950/40 gap-2">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 px-3 sm:px-5 pt-2 bg-slate-50 dark:bg-slate-950/40 gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none flex-nowrap shrink-0">
           <button
             onClick={() => { setActiveTab('shifts'); setEditingShift(null); }}
-            className={`px-4 py-2 text-xs font-bold border-b-2 transition-all ${
+            className={`px-3 sm:px-4 py-2 text-xs font-bold border-b-2 transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'shifts'
                 ? 'border-emerald-600 text-emerald-700 dark:border-yellow-400 dark:text-yellow-400 font-extrabold'
                 : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
@@ -147,7 +147,7 @@ export default function SettingsModal({
           </button>
           <button
             onClick={() => setActiveTab('backup')}
-            className={`px-4 py-2 text-xs font-bold border-b-2 transition-all ${
+            className={`px-3 sm:px-4 py-2 text-xs font-bold border-b-2 transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'backup'
                 ? 'border-emerald-600 text-emerald-700 dark:border-yellow-400 dark:text-yellow-400 font-extrabold'
                 : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
@@ -157,7 +157,7 @@ export default function SettingsModal({
           </button>
           <button
             onClick={() => setActiveTab('presets')}
-            className={`px-4 py-2 text-xs font-bold border-b-2 transition-all ${
+            className={`px-3 sm:px-4 py-2 text-xs font-bold border-b-2 transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'presets'
                 ? 'border-emerald-600 text-emerald-700 dark:border-yellow-400 dark:text-yellow-400 font-extrabold'
                 : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
@@ -251,8 +251,8 @@ export default function SettingsModal({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="min-w-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 min-w-0 w-full">
+                    <div className="min-w-0 w-full">
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Orario Inizio Standard
                       </label>
@@ -260,10 +260,10 @@ export default function SettingsModal({
                         type="time"
                         value={editingShift.startTime || ''}
                         onChange={(e) => setEditingShift({ ...editingShift, startTime: e.target.value })}
-                        className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                        className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                       />
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 w-full">
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Orario Fine Standard
                       </label>
@@ -271,7 +271,7 @@ export default function SettingsModal({
                         type="time"
                         value={editingShift.endTime || ''}
                         onChange={(e) => setEditingShift({ ...editingShift, endTime: e.target.value })}
-                        className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                        className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                       />
                     </div>
                   </div>
@@ -466,7 +466,7 @@ export default function SettingsModal({
         {/* Footer */}
         <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
-            inTurno v1.03
+            inTurno v1.04
           </span>
           <button
             onClick={onClose}

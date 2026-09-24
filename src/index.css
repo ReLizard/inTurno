@@ -6,6 +6,13 @@
   body {
     @apply bg-[#eef7f2] text-slate-800 font-sans dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 antialiased;
   }
+  input, select, textarea {
+    max-width: 100%;
+  }
+  input[type="time"], input[type="date"] {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 /* Custom transitions and scrollbar */

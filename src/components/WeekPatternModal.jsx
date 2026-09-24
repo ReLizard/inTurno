@@ -82,7 +82,7 @@ export default function WeekPatternModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
       <div 
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh] min-w-0"
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-[calc(100vw-1.5rem)] sm:max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh] min-w-0"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

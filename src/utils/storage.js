@@ -76,7 +76,7 @@ export function saveSettings(settings) {
 export function exportBackupJSON(shifts, modifiers, schedule, settings) {
   const data = {
     app: 'inTurno',
-    version: '1.03',
+    version: '1.04',
     exportDate: new Date().toISOString(),
     shifts,
     modifiers,

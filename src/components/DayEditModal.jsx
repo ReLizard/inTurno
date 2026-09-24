@@ -101,7 +101,7 @@ export default function DayEditModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
       <div 
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh] min-w-0"
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-[calc(100vw-1.5rem)] sm:max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh] min-w-0"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
@@ -161,28 +161,28 @@ export default function DayEditModal({
 
           {/* Section: Custom Hours (if a shift with time is selected) */}
           {selectedShiftCode && (
-            <div className="bg-emerald-50/40 dark:bg-slate-800/50 p-3 sm:p-3.5 rounded-2xl border border-emerald-100 dark:border-slate-700/60 min-w-0">
+            <div className="bg-emerald-50/40 dark:bg-slate-800/50 p-3 sm:p-3.5 rounded-2xl border border-emerald-100 dark:border-slate-700/60 min-w-0 w-full overflow-hidden">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2.5">
-                <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-yellow-400" />
-                <span>Orario Effettivo (Inizio - Fine)</span>
+                <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-yellow-400 shrink-0" />
+                <span className="truncate">Orario Effettivo (Inizio - Fine)</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-                <div className="min-w-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 min-w-0 w-full">
+                <div className="min-w-0 w-full">
                   <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Inizio</label>
                   <input
                     type="time"
                     value={customStartTime}
                     onChange={(e) => setCustomStartTime(e.target.value)}
-                    className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                    className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                   />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 w-full">
                   <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Fine</label>
                   <input
                     type="time"
                     value={customEndTime}
                     onChange={(e) => setCustomEndTime(e.target.value)}
-                    className="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
+                    className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
                   />
                 </div>
               </div>

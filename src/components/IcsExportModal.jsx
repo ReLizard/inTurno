@@ -201,7 +201,7 @@ export default function IcsExportModal({
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
         <div 
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[92vh] transition-all"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-[calc(100vw-1.5rem)] sm:max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[92vh] min-w-0 transition-all"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -319,23 +319,23 @@ export default function IcsExportModal({
 
               {/* Date personalizzate */}
               {rangeType === 'custom' && (
-                <div className="grid grid-cols-2 gap-3 mt-2.5 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mt-2.5 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 min-w-0">
+                  <div className="min-w-0">
                     <label className="text-[10px] text-slate-500 dark:text-slate-400 block mb-1">Da</label>
                     <input
                       type="date"
                       value={customStart}
                       onChange={(e) => setCustomStart(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                      className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-base sm:text-xs text-slate-900 dark:text-white"
                     />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-[10px] text-slate-500 dark:text-slate-400 block mb-1">A</label>
                     <input
                       type="date"
                       value={customEnd}
                       onChange={(e) => setCustomEnd(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                      className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-base sm:text-xs text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -430,135 +430,150 @@ export default function IcsExportModal({
                 </div>
               </div>
 
-              {/* OPZIONE 2: WHATSAPP */}
-              <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/20 dark:bg-slate-900/90 p-4 space-y-3 transition-all hover:border-emerald-400">
-                {/* RIGA 1: Intestazione con Titolo e tasto Info */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                      <MessageCircle className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                        Invia Turni via WhatsApp
-                      </h4>
-                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        Messaggio chiaro, ordinato e formattato
-                      </span>
-                    </div>
+              {/* OPZIONE 2 & 3: WHATSAPP E FOTO TURNI (DISATTIVATE PER TUTTO IL CALENDARIO) */}
+              {rangeType === 'all' ? (
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5 animate-fadeIn">
+                  <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div className="leading-relaxed">
+                    <strong>Opzioni WhatsApp e Foto Turni escluse per l'intero calendario.</strong>
+                    <p className="mt-0.5 text-[11px] text-amber-800 dark:text-amber-300">
+                      Per condividere su WhatsApp o scaricare la Foto Turni, seleziona in alto un periodo specifico (<strong>Questa Sett.</strong>, <strong>Prossima Sett.</strong>, <strong>Mese Intero</strong> o <strong>Personalizzato</strong>). In questo modo il testo del messaggio e la foto rimarranno sempre chiari e leggibili.
+                    </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleInfo('whatsapp')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors shrink-0 ${
-                      activeInfo === 'whatsapp'
-                        ? 'bg-emerald-600 text-white dark:bg-emerald-500'
-                        : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60'
-                    }`}
-                    title="Informazioni su come funziona"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                    <span className="text-[11px]">Come funziona</span>
-                  </button>
                 </div>
-
-                {/* RIGA 2: Commento esplicativo visibile su riga indipendente (SENZA troncature) */}
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Compone in automatico un testo pulito ed elegante con i tuoi orari di entrata/uscita, giorni di riposo e totale ore. Pronto da inviare in chat a familiari o colleghi di lavoro.
-                </p>
-
-                {/* Box Info a comparsa (Approfondimento) */}
-                {activeInfo === 'whatsapp' && (
-                  <div className="p-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-900/50 text-[11px] text-emerald-950 dark:text-emerald-200 leading-relaxed space-y-1.5 animate-fadeIn">
-                    <div className="font-bold flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
-                      <MessageCircle className="w-3.5 h-3.5" />
-                      <span>Guida dettagliata:</span>
+              ) : (
+                <>
+                  {/* OPZIONE 2: WHATSAPP */}
+                  <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/20 dark:bg-slate-900/90 p-4 space-y-3 transition-all hover:border-emerald-400">
+                    {/* RIGA 1: Intestazione con Titolo e tasto Info */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                          <MessageCircle className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                            Invia Turni via WhatsApp
+                          </h4>
+                          <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                            Messaggio chiaro, ordinato e formattato
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => toggleInfo('whatsapp')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors shrink-0 ${
+                          activeInfo === 'whatsapp'
+                            ? 'bg-emerald-600 text-white dark:bg-emerald-500'
+                            : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60'
+                        }`}
+                        title="Informazioni su come funziona"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                        <span className="text-[11px]">Come funziona</span>
+                      </button>
                     </div>
-                    <p>• Premendo il pulsante si apre direttamente l'app <strong>WhatsApp</strong> sul telefono (oppure WhatsApp Web se sei su computer).</p>
-                    <p>• Il testo con date e orari dei tuoi turni è già pronto: ti basta scegliere il contatto o il gruppo di famiglia e premere il tasto verde di invio.</p>
+
+                    {/* RIGA 2: Commento esplicativo visibile su riga indipendente (SENZA troncature) */}
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Compone in automatico un testo pulito ed elegante con i tuoi orari di entrata/uscita, giorni di riposo e totale ore. Pronto da inviare in chat a familiari o colleghi di lavoro.
+                    </p>
+
+                    {/* Box Info a comparsa (Approfondimento) */}
+                    {activeInfo === 'whatsapp' && (
+                      <div className="p-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-900/50 text-[11px] text-emerald-950 dark:text-emerald-200 leading-relaxed space-y-1.5 animate-fadeIn">
+                        <div className="font-bold flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          <span>Guida dettagliata:</span>
+                        </div>
+                        <p>• Premendo il pulsante si apre direttamente l'app <strong>WhatsApp</strong> sul telefono (oppure WhatsApp Web se sei su computer).</p>
+                        <p>• Il testo con date e orari dei tuoi turni è già pronto: ti basta scegliere il contatto o il gruppo di famiglia e premere il tasto verde di invio.</p>
+                      </div>
+                    )}
+
+                    {/* RIGA 3: Tasto azione a tutta larghezza */}
+                    <button
+                      type="button"
+                      onClick={handleSendWhatsApp}
+                      className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Apri WhatsApp e Invia</span>
+                    </button>
                   </div>
-                )}
 
-                {/* RIGA 3: Tasto azione a tutta larghezza */}
-                <button
-                  type="button"
-                  onClick={handleSendWhatsApp}
-                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Apri WhatsApp e Invia</span>
-                </button>
-              </div>
+                  {/* OPZIONE 3: FOTO TURNI (SCHEDA GRAFICA) */}
+                  <div className="rounded-2xl border border-purple-200 dark:border-purple-900/60 bg-purple-50/20 dark:bg-slate-900/90 p-4 space-y-3 transition-all hover:border-purple-400">
+                    {/* RIGA 1: Intestazione con Titolo e tasto Info */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:bg-purple-400/10 dark:text-purple-400 border border-purple-500/20 flex items-center justify-center shrink-0">
+                          <ImageIcon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                            Invia Foto Turni
+                          </h4>
+                          <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400">
+                            Scheda grafica a colori ad alta definizione
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => toggleInfo('photo')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors shrink-0 ${
+                          activeInfo === 'photo'
+                            ? 'bg-purple-600 text-white dark:bg-purple-500'
+                            : 'bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-950/60 dark:text-purple-300 dark:hover:bg-purple-900/60'
+                        }`}
+                        title="Informazioni su come funziona"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                        <span className="text-[11px]">Come funziona</span>
+                      </button>
+                    </div>
 
-              {/* OPZIONE 3: FOTO TURNI (SCHEDA GRAFICA) */}
-              <div className="rounded-2xl border border-purple-200 dark:border-purple-900/60 bg-purple-50/20 dark:bg-slate-900/90 p-4 space-y-3 transition-all hover:border-purple-400">
-                {/* RIGA 1: Intestazione con Titolo e tasto Info */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:bg-purple-400/10 dark:text-purple-400 border border-purple-500/20 flex items-center justify-center shrink-0">
-                      <ImageIcon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                        Invia Foto Turni
-                      </h4>
-                      <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400">
-                        Scheda grafica a colori ad alta definizione
-                      </span>
-                    </div>
+                    {/* RIGA 2: Commento esplicativo visibile su riga indipendente (SENZA troncature) */}
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Compone in automatico una scheda grafica colorata con i badge dei turni, orari e riepilogo ore. Potrai visualizzare l'anteprima e condividerla liberamente come una foto dallo smartphone o salvarla nella galleria.
+                    </p>
+
+                    {/* Box Info a comparsa (Approfondimento) */}
+                    {activeInfo === 'photo' && (
+                      <div className="p-3 rounded-xl bg-purple-50/80 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-900/50 text-[11px] text-purple-950 dark:text-purple-200 leading-relaxed space-y-1.5 animate-fadeIn">
+                        <div className="font-bold flex items-center gap-1 text-purple-700 dark:text-purple-400">
+                          <ImageIcon className="w-3.5 h-3.5" />
+                          <span>Guida dettagliata:</span>
+                        </div>
+                        <p>• Crea un'immagine nitida (formato 1080px) pronta per smartphone.</p>
+                        <p>• Si apre subito una schermata di anteprima: da lì puoi premere <strong>"Condividi Foto"</strong> (per inviarla tramite WhatsApp, Telegram, email come qualsiasi foto della tua fotocamera) oppure <strong>"Salva nella Galleria"</strong>.</p>
+                      </div>
+                    )}
+
+                    {/* RIGA 3: Tasto azione a tutta larghezza con stato di caricamento */}
+                    <button
+                      type="button"
+                      onClick={handlePreparePhoto}
+                      disabled={isGeneratingPhoto}
+                      className="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                    >
+                      {isGeneratingPhoto ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Generazione immagine in corso...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="w-4 h-4" />
+                          <span>Vedi Anteprima e Condividi Foto</span>
+                        </>
+                      )}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleInfo('photo')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors shrink-0 ${
-                      activeInfo === 'photo'
-                        ? 'bg-purple-600 text-white dark:bg-purple-500'
-                        : 'bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-950/60 dark:text-purple-300 dark:hover:bg-purple-900/60'
-                    }`}
-                    title="Informazioni su come funziona"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                    <span className="text-[11px]">Come funziona</span>
-                  </button>
-                </div>
-
-                {/* RIGA 2: Commento esplicativo visibile su riga indipendente (SENZA troncature) */}
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Genera una scheda grafica colorata con i badge dei turni, orari e riepilogo ore. Potrai visualizzare l'anteprima e condividerla liberamente come una foto dallo smartphone o salvarla nella galleria.
-                </p>
-
-                {/* Box Info a comparsa (Approfondimento) */}
-                {activeInfo === 'photo' && (
-                  <div className="p-3 rounded-xl bg-purple-50/80 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-900/50 text-[11px] text-purple-950 dark:text-purple-200 leading-relaxed space-y-1.5 animate-fadeIn">
-                    <div className="font-bold flex items-center gap-1 text-purple-700 dark:text-purple-400">
-                      <ImageIcon className="w-3.5 h-3.5" />
-                      <span>Guida dettagliata:</span>
-                    </div>
-                    <p>• Crea un'immagine nitida (formato 1080px) pronta per smartphone.</p>
-                    <p>• Si apre subito una schermata di anteprima: da lì puoi premere <strong>"Condividi Foto"</strong> (per inviarla tramite WhatsApp, Telegram, email come qualsiasi foto della tua fotocamera) oppure <strong>"Salva nella Galleria"</strong>.</p>
-                  </div>
-                )}
-
-                {/* RIGA 3: Tasto azione a tutta larghezza con stato di caricamento */}
-                <button
-                  type="button"
-                  onClick={handlePreparePhoto}
-                  disabled={isGeneratingPhoto}
-                  className="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all disabled:opacity-50"
-                >
-                  {isGeneratingPhoto ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Generazione immagine in corso...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="w-4 h-4" />
-                      <span>Vedi Anteprima e Condividi Foto</span>
-                    </>
-                  )}
-                </button>
-              </div>
+                </>
+              )}
 
             </div>
 
