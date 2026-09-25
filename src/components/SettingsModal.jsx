@@ -11,10 +11,12 @@ import {
   Palette, 
   Sliders, 
   ShieldCheck,
-  Check
+  Check,
+  Clock
 } from 'lucide-react';
 import { CATEGORIES, CATEGORY_LABELS, DEFAULT_SHIFTS, PRESET_PACKS } from '../constants/defaults';
 import { exportBackupJSON } from '../utils/storage';
+import TimePickerModal from './TimePickerModal';
 
 export default function SettingsModal({
   isOpen,
@@ -33,6 +35,7 @@ export default function SettingsModal({
   const [activeTab, setActiveTab] = useState('shifts'); // 'shifts' | 'backup' | 'presets'
   const [editingShift, setEditingShift] = useState(null); // shift being created or edited
   const [isNewShift, setIsNewShift] = useState(false);
+  const [timePickerTarget, setTimePickerTarget] = useState(null); // { field: 'startTime' | 'endTime', title: string, value: string }
 
   // Backup file upload handler
   const handleRestoreFile = (e) => {
@@ -256,23 +259,67 @@ export default function SettingsModal({
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Orario Inizio Standard
                       </label>
-                      <input
-                        type="time"
-                        value={editingShift.startTime || ''}
-                        onChange={(e) => setEditingShift({ ...editingShift, startTime: e.target.value })}
-                        className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
-                      />
+                      <button
+                        type="button"
+                        onClick={() => setTimePickerTarget({
+                          field: 'startTime',
+                          title: 'Orario Inizio Standard',
+                          value: editingShift.startTime || ''
+                        })}
+                        className="w-full flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono hover:border-emerald-500 dark:hover:border-yellow-400 transition-colors shadow-sm text-left group"
+                      >
+                        <span className={editingShift.startTime ? "font-bold text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500 font-normal"}>
+                          {editingShift.startTime || '--:--'}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {editingShift.startTime && (
+                            <span
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingShift({ ...editingShift, startTime: '' });
+                              }}
+                              className="p-1 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              title="Rimuovi orario"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </span>
+                          )}
+                          <Clock className="w-4 h-4 text-emerald-600 dark:text-yellow-400 group-hover:scale-110 transition-transform shrink-0" />
+                        </div>
+                      </button>
                     </div>
                     <div className="min-w-0 w-full">
                       <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                         Orario Fine Standard
                       </label>
-                      <input
-                        type="time"
-                        value={editingShift.endTime || ''}
-                        onChange={(e) => setEditingShift({ ...editingShift, endTime: e.target.value })}
-                        className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
-                      />
+                      <button
+                        type="button"
+                        onClick={() => setTimePickerTarget({
+                          field: 'endTime',
+                          title: 'Orario Fine Standard',
+                          value: editingShift.endTime || ''
+                        })}
+                        className="w-full flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono hover:border-emerald-500 dark:hover:border-yellow-400 transition-colors shadow-sm text-left group"
+                      >
+                        <span className={editingShift.endTime ? "font-bold text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500 font-normal"}>
+                          {editingShift.endTime || '--:--'}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {editingShift.endTime && (
+                            <span
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingShift({ ...editingShift, endTime: '' });
+                              }}
+                              className="p-1 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              title="Rimuovi orario"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </span>
+                          )}
+                          <Clock className="w-4 h-4 text-emerald-600 dark:text-yellow-400 group-hover:scale-110 transition-transform shrink-0" />
+                        </div>
+                      </button>
                     </div>
                   </div>
 
@@ -466,7 +513,7 @@ export default function SettingsModal({
         {/* Footer */}
         <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
-            inTurno v1.04
+            inTurno v1.05
           </span>
           <button
             onClick={onClose}
@@ -477,6 +524,24 @@ export default function SettingsModal({
         </div>
 
       </div>
+
+      {/* Custom Time Picker Modal */}
+      {timePickerTarget && (
+        <TimePickerModal
+          isOpen={!!timePickerTarget}
+          onClose={() => setTimePickerTarget(null)}
+          title={timePickerTarget.title}
+          value={timePickerTarget.value || ''}
+          onChange={(newTime) => {
+            if (timePickerTarget && editingShift) {
+              setEditingShift({
+                ...editingShift,
+                [timePickerTarget.field]: newTime
+              });
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

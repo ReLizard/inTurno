@@ -12,6 +12,7 @@ import {
   Sparkles,
   Tag
 } from 'lucide-react';
+import TimePickerModal from './TimePickerModal';
 
 export default function DayEditModal({
   isOpen,
@@ -36,6 +37,7 @@ export default function DayEditModal({
   const [note, setNote] = useState(scheduleEntry?.note || '');
   const [customModifierInput, setCustomModifierInput] = useState('');
   const [showAddModifier, setShowAddModifier] = useState(false);
+  const [timePickerTarget, setTimePickerTarget] = useState(null); // { field: 'startTime' | 'endTime', title: string, value: string }
 
   // Sync state when date or entry changes
   useEffect(() => {
@@ -169,21 +171,65 @@ export default function DayEditModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 min-w-0 w-full">
                 <div className="min-w-0 w-full">
                   <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Inizio</label>
-                  <input
-                    type="time"
-                    value={customStartTime}
-                    onChange={(e) => setCustomStartTime(e.target.value)}
-                    className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setTimePickerTarget({
+                      field: 'startTime',
+                      title: 'Orario Effettivo Inizio',
+                      value: customStartTime || ''
+                    })}
+                    className="w-full flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono hover:border-emerald-500 dark:hover:border-yellow-400 transition-colors shadow-sm text-left group"
+                  >
+                    <span className={customStartTime ? "font-bold text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500 font-normal"}>
+                      {customStartTime || '--:--'}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {customStartTime && (
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCustomStartTime('');
+                          }}
+                          className="p-1 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          title="Rimuovi orario"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </span>
+                      )}
+                      <Clock className="w-4 h-4 text-emerald-600 dark:text-yellow-400 group-hover:scale-110 transition-transform shrink-0" />
+                    </div>
+                  </button>
                 </div>
                 <div className="min-w-0 w-full">
                   <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Fine</label>
-                  <input
-                    type="time"
-                    value={customEndTime}
-                    onChange={(e) => setCustomEndTime(e.target.value)}
-                    className="w-full min-w-0 box-border bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 dark:focus:border-yellow-400"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setTimePickerTarget({
+                      field: 'endTime',
+                      title: 'Orario Effettivo Fine',
+                      value: customEndTime || ''
+                    })}
+                    className="w-full flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-base sm:text-sm text-slate-900 dark:text-white font-mono hover:border-emerald-500 dark:hover:border-yellow-400 transition-colors shadow-sm text-left group"
+                  >
+                    <span className={customEndTime ? "font-bold text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500 font-normal"}>
+                      {customEndTime || '--:--'}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {customEndTime && (
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCustomEndTime('');
+                          }}
+                          className="p-1 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          title="Rimuovi orario"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </span>
+                      )}
+                      <Clock className="w-4 h-4 text-emerald-600 dark:text-yellow-400 group-hover:scale-110 transition-transform shrink-0" />
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -312,6 +358,23 @@ export default function DayEditModal({
         </div>
 
       </div>
+
+      {/* Custom Time Picker Modal */}
+      {timePickerTarget && (
+        <TimePickerModal
+          isOpen={!!timePickerTarget}
+          onClose={() => setTimePickerTarget(null)}
+          title={timePickerTarget.title}
+          value={timePickerTarget.value || ''}
+          onChange={(newTime) => {
+            if (timePickerTarget?.field === 'startTime') {
+              setCustomStartTime(newTime);
+            } else if (timePickerTarget?.field === 'endTime') {
+              setCustomEndTime(newTime);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
